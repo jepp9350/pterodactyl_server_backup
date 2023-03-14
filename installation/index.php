@@ -29,20 +29,24 @@ if(isset($_POST['db_name'])){
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     </head>
     <body>
-    <div class="container">
+    <div class="container mt-4">
         <div class="box">
             <form method="post" action="<?=$install_url?>">
             <?php if (isset($message)){
             echo '
             <div class="notification is-'.$message_color.'">
                 <button class="delete"></button>
-                '.$message.'</div>'
-            ;}?>
+                '.$message.'</div>';
+                  }?>
+                <div class="field">
+                    <h1 class="title">Start by connecting to a database.</h1>
+                    <h2 class="subtitle">Pterodactyl server backups - Installation</h2>
+                </div>
                 <div class="field">
                     <p class="control has-icons-left has-icons-right">
                         <input name="db_host" class="input" type="text" placeholder="Database host (localhost)">
                         <span class="icon is-small is-left">
-                        <i class="fas fa-envelope"></i>
+                            <i class="fa-solid fa-server"></i>
                         </span>
                         <span class="icon is-small is-right">
                         <i class="fas fa-check"></i>
@@ -53,7 +57,7 @@ if(isset($_POST['db_name'])){
                     <p class="control has-icons-left">
                         <input name="db_name" class="input" type="text" placeholder="Database name">
                         <span class="icon is-small is-left">
-                        <i class="fas fa-lock"></i>
+                            <i class="fa-solid fa-database"></i>
                         </span>
                     </p>
                 </div>
@@ -61,7 +65,7 @@ if(isset($_POST['db_name'])){
                     <p class="control has-icons-left">
                         <input name="db_user" class="input" type="text" placeholder="Database user">
                         <span class="icon is-small is-left">
-                        <i class="fas fa-lock"></i>
+                            <i class="fa-solid fa-user"></i>
                         </span>
                     </p>
                 </div>

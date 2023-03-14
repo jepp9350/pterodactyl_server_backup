@@ -23,19 +23,24 @@ function fetch_notifications($userid){
     $conn = new mysqli($database_host, $database_user, $database_user_password, $database_name);
     // Check connection
     if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $sql = "SELECT * FROM accounts WHERE id='$userid'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
-    // output data of each row
-    while($row = $result->fetch_assoc()) {
-        return $row["notifications"];
-    }
-    } else {
-    return "0 results";
+        // output data of each row
+        while($row = $result->fetch_assoc()) {
+            if (isset($row["notifications"]) && !empty($row["notifications"])) {
+                return $row["notifications"];
+            } else {
+                $notifications = array(
+                    array("notification_none","You have no new notifications.","Enjoy the free space!")
+                );
+                return json_encode($notifications);
+            }
+        }
     }
     $conn->close();
 }

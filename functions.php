@@ -74,12 +74,18 @@ function check_database_connection($action, $database){
                             } else {
                                 echo "Error creating table: " . $conn->error;
                             }
-                            $sql = "INSERT IGNORE INTO accounts (id, firstname, lastname, email, password) VALUES (
+                            // Default notifications:
+                            $notifications = array(
+                                array("welcome_admin","Welcome to your new backup panel.","Start by adding your first server.")
+                            );
+                            $default_notifications = json_encode($notifications);
+                            $sql = "INSERT IGNORE INTO accounts (id, firstname, lastname, email, password, notifications) VALUES (
                                 '1',
                                 'Admin',
                                 'User',
                                 'notset',
-                                'password')";
+                                'password',
+                                '".$default_notifications."')";
                             if ($conn->query($sql) === TRUE) {
                                 #echo "Admin default account created successfully";
                             } else {
@@ -157,12 +163,10 @@ function check_database_connection($action, $database){
                 }
             } else {
                 return "db_not_set.";
-                echo 'DB not set';
             }
             break;
         default:
             return("Invalid action for check_database_connection function!");
-            echo 'Invalid action!';
             break;
     }
 }

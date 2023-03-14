@@ -1,8 +1,8 @@
 <?php
-if (isset($_POST['action'])) {
-    echo $_POST['action'];
+if (isset($_POST['action'])){
+    #echo $_POST['action'];
     validate_login($_POST['email'],$_POST['password']);
-}
+    }
 function validate_login($email,$password){
     require './database.php';
     // Create connection
@@ -16,19 +16,21 @@ function validate_login($email,$password){
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
-    // output data of each row
-    while($row = $result->fetch_assoc()) {
-        if ($row["password"] == $password) {
-            echo "success!";
-            unset($_POST['action']);
-            $_SESSION['user'] = $row["id"];
-            header('Location: #');
-            exit;
-        } else {
-            echo "Wrong password!";
+        // output data of each row
+        while($row = $result->fetch_assoc()) {
+            if ($row["password"] == $password) {
+                echo "success!";
+                unset($_POST['action']);
+                $_SESSION['user'] = $row["id"];
+                $timestamp = date("Y-m-d H:i:s");
+                $sql = "UPDATE accounts SET seen_date='$timestamp' WHERE id=". $_SESSION['user'] ."";
+                $result = $conn->query($sql);
+                header('Location: #');
+                exit;
+            } else {
+                echo "Wrong password!";
+            }
         }
-        #echo "id: " . $row["id"]. " - Name: " . $row["firstname"]. " " . $row["lastname"]. "<br>";
-    }
     } else {
     echo "0 results";
     }
@@ -55,6 +57,10 @@ function validate_login($email,$password){
                 <button class="delete"></button>
                 '.$message.'</div>'
             ;}?>
+                <div class="field">
+                    <h1 class="title">Sign in to your account.</h1>
+                    <h2 class="subtitle">Pterodactyl server backups</h2>
+                </div>
                 <div class="field">
                     <p class="control has-icons-left has-icons-right">
                         <input name="email" class="input" type="text" placeholder="johndoe@example.com">
