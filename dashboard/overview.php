@@ -6,6 +6,8 @@
     border-color: #dbdbdb;
 }
 </style>
+<!-- Create a new server => Modal => JS -->
+<script src="./js/bulma.modal.js"></script>
 <div class="container">
     <div class="block">
         <div class="columns mt-4">
@@ -180,7 +182,7 @@ function server_sync(){
         </div>\
         <div class="list-item-controls">\
         <div class="buttons is-right">\
-            <button class="button">\
+            <button class="button" onclick="show_modal(\'create-new-server\')">\
             <span class="icon is-small">\
                 <i class="fas fa-edit"></i>\
             </span>\
@@ -274,4 +276,27 @@ function show_notification(type,message){
             break;
     }
 }
+</script>
+<!-- Create a new server => Modal -->
+<div id="create-new-server" class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Add a new server</p>
+      <button class="delete" aria-label="close"></button>
+    </header>
+    <section class="modal-card-body">
+      <!-- Content ... -->
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-success">Save changes</button>
+      <button class="button">Cancel</button>
+    </footer>
+  </div>
+</div>
+<!-- Script to activate create a new server Modal -->
+<script>
+    function show_modal($modal_id) {
+        document.getElementById($modal_id).classList.add('is-active');
+    }
 </script>

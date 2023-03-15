@@ -1,5 +1,6 @@
 <?php
 session_start();
+// Check to see if it's a browser refreshing.
 if (isset($_GET["api_key"])) {
     $api_key = $_GET["api_key"];
     if ($api_key == "none"){
@@ -40,6 +41,10 @@ if (isset($_GET["api_key"])) {
             exit();
             break;
     }
+}
+if (isset($_POST['action']) && isset($_POST['secret_token'])) {
+    require './api/server_refresh.php';
+    exit();
 }
 require_once './settings.php';
 require_once './functions.php';
