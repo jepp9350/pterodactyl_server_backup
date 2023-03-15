@@ -1,5 +1,4 @@
 <?php
-session_start();
 if (!isset($_SESSION['user'])) {
     $errors = array(
         array("notification1","Access denied","You're logged out."));
@@ -9,7 +8,7 @@ if (!isset($_SESSION['user'])) {
 }
 #echo $response;
 function remove_notification($userid,$notification_id){
-    require '../../database.php';
+    require './database.php';
     // Create connection
     $conn = new mysqli($database_host, $database_user, $database_user_password, $database_name);
     // Check connection
@@ -26,7 +25,7 @@ function remove_notification($userid,$notification_id){
             if (isset($row["notifications"]) && !empty($row["notifications"])) {
                 $notifications = json_decode($row["notifications"]);
                 foreach ($notifications as $notification) {
-                    if (!$notification[0] == $notification_id) {
+                    if ($notification[0] != $notification_id) {
                         array_push($notifications_new,$notification);
                     }
                 }

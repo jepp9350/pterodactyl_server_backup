@@ -1,9 +1,8 @@
 <?php
-session_start();
 if (!isset($_SESSION['user'])) {
     $errors = array(
-        array("server1","Access denied","You're logged out."));
-    $response = json_encode($errors);
+        array("none","Access denied","You're logged out."));
+    echo json_encode($errors);
 } else {
     echo fetch_servers();
     /*$servers = array(
@@ -18,7 +17,7 @@ if (!isset($_SESSION['user'])) {
 }
 #echo $response;
 function fetch_servers(){
-    require '../../database.php';
+    require './database.php';
     // Create connection
     $conn = new mysqli($database_host, $database_user, $database_user_password, $database_name);
     // Check connection
@@ -33,7 +32,12 @@ function fetch_servers(){
         // output data of each row
         while($row = $result->fetch_assoc()) {
             if (isset($row["id"]) && !empty($row["id"])) {
-                return json_encode($row);
+                $servers = array(
+                    array(
+                        $row["id"],$row["secret_token"],$row["displayname"],$row["ipaddress"],$row["seen_date"],$row["reg_date"]
+                        )
+                );
+                return json_encode($servers);
             } else {
                 $servers = array(
                     array("0","none","You have no servers.","-","-","-")

@@ -1,38 +1,60 @@
 <?php
 if (isset($_POST['action'])){
     #echo $_POST['action'];
-    validate_login($_POST['email'],$_POST['password']);
+    switch (validate_login($_POST['email'],$_POST['password'])){
+        case 200:
+            //Valid credentials, refresh page.
+            header('Location: #');
+            break;
+        case 401:
+            //Invalid credentials, show error message.
+            $message = "Incorrect email or password.";
+            $message_color = "warning";
+            break;
+        default:
+            //Invalid response, indicate error.
+            $message = "An error has occured!";
+            $message_color = "danger";
+            break;
     }
+}
 function validate_login($email,$password){
     require './database.php';
     // Create connection
     $conn = new mysqli($database_host, $database_user, $database_user_password, $database_name);
     // Check connection
     if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+        return 
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $sql = "SELECT * FROM accounts WHERE email='$email'";
     $result = $conn->query($sql);
-
+    // Prepare variables to log.
+    $login_ip = $_SERVER['REMOTE_ADDR'];
+    $login_email = $_POST['email'];
     if ($result->num_rows > 0) {
         // output data of each row
         while($row = $result->fetch_assoc()) {
             if ($row["password"] == $password) {
-                echo "success!";
                 unset($_POST['action']);
                 $_SESSION['user'] = $row["id"];
+                $user = $_SESSION['user'];
                 $timestamp = date("Y-m-d H:i:s");
                 $sql = "UPDATE accounts SET seen_date='$timestamp' WHERE id=". $_SESSION['user'] ."";
                 $result = $conn->query($sql);
-                header('Location: #');
-                exit;
+                log_event("USER_LOGIN_SUCCESS", "($login_ip) signed in as ($login_email).", "none", "$user");
+                return 200;
             } else {
-                echo "Wrong password!";
+                // In case of a wrong password.
+                log_event("USER_LOGIN_FAILED_ATTEMPT_PASSWORD", "($login_ip) failed to login as ($login_email).", "none", $login_ip);
+                return 401;
             }
         }
     } else {
-    echo "0 results";
+        // In case the user doesn't exist.
+        log_event("USER_LOGIN_FAILED_INVALID_ACCOUNT", "($login_ip) failed to login as ($login_email).", "none", $login_ip);
+        return 401;
     }
     $conn->close();
 }
@@ -51,30 +73,32 @@ function validate_login($email,$password){
     <div class="container mt-4">
         <div class="box">
             <form method="post" action="<?=$install_url?>">
-            <?php if (isset($message)){
-            echo '
-            <div class="notification is-'.$message_color.'">
-                <button class="delete"></button>
-                '.$message.'</div>'
-            ;}?>
                 <div class="field">
                     <h1 class="title">Sign in to your account.</h1>
                     <h2 class="subtitle">Pterodactyl server backups</h2>
                 </div>
+                <?php if (isset($message)){echo '
+            <div class="field">
+                <div class="notification is-'.$message_color.'">
+                    <button class="delete"></button>
+                    '.$message.'
+                </div>
+            </div>';
+            }?>
                 <div class="field">
                     <p class="control has-icons-left has-icons-right">
-                        <input name="email" class="input" type="text" placeholder="johndoe@example.com">
+                        <input name="email" class="input" type="email" placeholder="johndoe@example.com" required>
                         <span class="icon is-small is-left">
-                        <i class="fas fa-envelope"></i>
+                            <i class="fas fa-envelope"></i>
                         </span>
                         <span class="icon is-small is-right">
-                        <i class="fas fa-check"></i>
+                            <i class="fas fa-check"></i>
                         </span>
                     </p>
                 </div>
                 <div class="field">
                     <p class="control has-icons-left">
-                        <input name="password" class="input" type="password" placeholder="Hunter02">
+                        <input name="password" class="input" type="password" placeholder="Hunter02" required>
                         <span class="icon is-small is-left">
                         <i class="fas fa-lock"></i>
                         </span>

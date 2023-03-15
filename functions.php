@@ -109,7 +109,7 @@ function check_database_connection($action, $database){
                                 displayname VARCHAR(255) NOT NULL,
                                 ipaddress VARCHAR(255),
                                 seen_date VARCHAR(255),
-                                reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                                reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                                 )";
                                 
                                 if ($conn->query($sql) === TRUE) {
@@ -135,7 +135,7 @@ function check_database_connection($action, $database){
                                 description VARCHAR(255),
                                 service VARCHAR(255),
                                 user VARCHAR(255),
-                                reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                                reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                                 )";
                                 
                                 if ($conn->query($sql) === TRUE) {
@@ -184,7 +184,7 @@ function log_event($event, $description, $service, $user) {
     VALUES ('$event', '$description', '$service', '$user')";
 
     if ($conn->query($sql) === TRUE) {
-    echo "New record created successfully";
+    #echo "New record created successfully";
     } else {
     echo "Error: " . $sql . "<br>" . $conn->error;
     }

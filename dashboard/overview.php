@@ -107,11 +107,11 @@ function notification_mark_read(notification_uuid) {
     const notification_conn = new XMLHttpRequest();
     // Define a callback function
     notification_conn.onload = function() {
-    // Here you can use the Data
-    console.log(this.responseText);
+        // Here you can use the Data
+        console.log(this.responseText);
     }
     // Send a request
-    notification_conn.open("GET", "./dashboard/api/remove_notification.php?notification_id="+notification_uuid);
+    notification_conn.open("GET", "./index.php?api_key=none&action=remove_notification&notification_id="+notification_uuid);
     notification_conn.send();
 }
 
@@ -133,19 +133,20 @@ function server_sync(){
     if (servers_array[0][0] != "0") {
         for (var server_array in servers_array) {
             if(servers_array[server_array][1] == "Access denied") {
-                show_server('error','Your session has expired, please sign in.');
+                show_notification('error','Your session has expired, please sign in.');
+                endfor;
             }
             //console.log(servers_array[server_array][0] + "title:" + servers_array[server_array][1]);
             servers_temp = servers_temp + '\
             <div class="list-item">\
                 <div class="list-item-image">\
                 <figure class="image is-64x64">\
-                    <img class="is-rounded" src="https://via.placeholder.com/128x128.png?text=Image">\
+                    <img style="background-color: #00d1b2;" class="is-rounded" src="./src/img/server_transferring_icon.png">\
                 </figure>\
                 </div>\
                 <div class="list-item-content">\
-                <div class="list-item-title">'+servers_array[server_array][2]+'</div>\
-                <div class="list-item-description">ID: '+servers_array[server_array][0]+' IP: '+servers_array[server_array][3]+'</div>\
+                <div class="list-item-title">'+servers_array[server_array][2]+' <span class="tag is-normal is-danger is-rounded">Deactivated</span></div>\
+                <div class="list-item-description">ID: '+servers_array[server_array][0]+' IP: '+servers_array[server_array][3]+' Last seen: '+servers_array[server_array][4]+' Reg: '+servers_array[server_array][5]+'</div>\
                 </div>\
                 <div class="list-item-controls">\
                 <div class="buttons is-right">\
@@ -198,7 +199,7 @@ function server_sync(){
     }
 
     // Send a request
-    server_conn.open("GET", "./dashboard/api/sync_servers.php");
+    server_conn.open("GET", "./index.php?api_key=none&action=sync_servers");
     server_conn.send();
 }
 // Javascript => Backend => Refresh notifications.
@@ -247,7 +248,8 @@ function notification_sync(){
     }
 
     // Send a request
-    notification_conn.open("GET", "./dashboard/api/sync_notifications.php");
+    //notification_conn.open("GET", "./dashboard/api/sync_notifications.php");
+    notification_conn.open("GET", "./index.php?api_key=none&action=sync_notifications");
     notification_conn.send();
 }
 // Javascript => Every 1 second => Run functions.

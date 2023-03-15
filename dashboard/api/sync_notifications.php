@@ -1,5 +1,4 @@
 <?php
-session_start();
 if (!isset($_SESSION['user'])) {
     $errors = array(
         array("notification1","Access denied","You're logged out."));
@@ -18,7 +17,7 @@ if (!isset($_SESSION['user'])) {
 }
 #echo $response;
 function fetch_notifications($userid){
-    require '../../database.php';
+    require './database.php';
     // Create connection
     $conn = new mysqli($database_host, $database_user, $database_user_password, $database_name);
     // Check connection
