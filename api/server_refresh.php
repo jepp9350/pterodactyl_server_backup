@@ -3,11 +3,7 @@
 // curl command for install (for update replace i with u):
 // bash <(curl -d 'action=i&secret_token=SkctiyZrHdGuJVvQ8Y1w5ttU7EKN1ySeXWPYVhypGg398cOL' -X POST 172.16.13.33/api/)
 
-// $database_host = '172.16.5.1';
-// $database_name = 'testuser2';
-// $database_user = 'testuser2';
-// $database_user_password = 'Jeppe2006';
-require '../database.php';
+require_once './database.php';
 
 // get the FQDN var
 require_once './settings.php';
@@ -29,7 +25,7 @@ function doUpdate() {
 }
 
 // serve the bash code to install the cronjob in the /etc/cron.d dir
-function doInstall($displayname, $secret_token) {
+function doInstall($displayname, $secret_token, $settings_install_url) {
     echo "clear \n";
     echo "echo \n";
     echo "echo Installing cron.d file for Pterodactyl Server Backup Manager \n";
@@ -38,7 +34,7 @@ function doInstall($displayname, $secret_token) {
     echo "echo '# /etc/cron.d/backupmanager: crontab entry for the Pterodactyl Server Backup Manager' > /etc/cron.d/backupmanager \n";
     echo "echo 'SHELL=/bin/sh' >> /etc/cron.d/backupmanager \n";
     echo "echo 'PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin' >> /etc/cron.d/backupmanager \n";
-    $cmd = 'curl -d "action=u&secret_token=' . $secret_token . '" -X POST ' . $install_url . ' | bash';
+    $cmd = 'curl -d "action=u&secret_token=' . $secret_token . '" -X POST ' . $settings_install_url . ' | bash';
     echo "echo '* * * * * root " . $cmd . "' >> /etc/cron.d/backupmanager \n";
 }
 
@@ -94,7 +90,7 @@ if ($action == 'u') {
       if ($conn->query($sql) === TRUE) {
         // return the oneliner to install the cronjob
         doLastSeen($conn, $secret_token);
-        doInstall($displayname, $secret_token);
+        doInstall($displayname, $secret_token, $settings_install_url);
       } else {
         echo "Error setting IP: " . $conn->error;
       }
