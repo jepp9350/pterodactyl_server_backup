@@ -59,7 +59,7 @@ if (!isset($_SESSION['user'])) {
 ?>
 <html>
     <head>
-        <title><?=$display_name?></title>
+        <title><?=$settings_display_name?></title>
         <link rel="stylesheet" href="./css/bulma.css">
         <link rel="stylesheet" href="./css/bulma-list.css">
         <link rel="stylesheet" href="./css/bulma-badge.min.css">

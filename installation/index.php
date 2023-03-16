@@ -13,7 +13,7 @@ if(isset($_POST['db_name'])){
     if($db_update == 200) {
         $message = "Connected successfully!";
         $message_color = "success";
-        header('Location: ' . $install_url .'');
+        header('Location: #');
         exit;
     }
     if($db_update == 500) {
@@ -31,7 +31,7 @@ if(isset($_POST['db_name'])){
     <body>
     <div class="container mt-4">
         <div class="box">
-            <form method="post" action="<?=$install_url?>">
+            <form method="post" action="#">
             <?php if (isset($message)){
             echo '
             <div class="notification is-'.$message_color.'">
