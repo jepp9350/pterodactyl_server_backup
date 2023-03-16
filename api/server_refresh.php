@@ -3,13 +3,20 @@
 // curl command for install (for update replace i with u):
 // bash <(curl -d 'action=i&secret_token=SkctiyZrHdGuJVvQ8Y1w5ttU7EKN1ySeXWPYVhypGg398cOL' -X POST 172.16.13.33/api/)
 
-require './database.php';
+// $database_host = '172.16.5.1';
+// $database_name = 'testuser2';
+// $database_user = 'testuser2';
+// $database_user_password = 'Jeppe2006';
+require '../database.php';
+
+// get the FQDN var
+require_once './settings.php';
+
 $conn = new mysqli($database_host, $database_user, $database_user_password, $database_name);
 // Check connection
 if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
-
 
 function doLastSeen($conn, $secret_token) {
   $timestamp = date("Y-m-d H:i:s");
@@ -21,7 +28,7 @@ function doUpdate() {
     echo 'echo $USER > /tmp/idk';
 }
 
-// serve the bash code to install the cronjon in the /etc/cron.d dir
+// serve the bash code to install the cronjob in the /etc/cron.d dir
 function doInstall($displayname, $secret_token) {
     echo "clear \n";
     echo "echo \n";
@@ -31,7 +38,7 @@ function doInstall($displayname, $secret_token) {
     echo "echo '# /etc/cron.d/backupmanager: crontab entry for the Pterodactyl Server Backup Manager' > /etc/cron.d/backupmanager \n";
     echo "echo 'SHELL=/bin/sh' >> /etc/cron.d/backupmanager \n";
     echo "echo 'PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin' >> /etc/cron.d/backupmanager \n";
-    $cmd = 'curl -d "action=u&secret_token=' . $secret_token . '" -X POST 172.16.13.33/api/ | bash';
+    $cmd = 'curl -d "action=u&secret_token=' . $secret_token . '" -X POST ' . $install_url . ' | bash';
     echo "echo '* * * * * root " . $cmd . "' >> /etc/cron.d/backupmanager \n";
 }
 
@@ -39,14 +46,19 @@ function doInstall($displayname, $secret_token) {
 if (!isset($_POST['action']) AND !isset($_POST['secret_token'])) {
     die('no POST data');
 }
- 
+
 // quick code to kinda stop user inputted strings from being malicious
 $action = htmlspecialchars($_POST['action']);
 $secret_token = htmlspecialchars($_POST['secret_token']);
 
-//check the inputted token lenth, easy way to stop malicios intent.
+// check the inputted token length, easy way to stop malicios intent.
 if (strlen($secret_token) != 48) {
     die('No such token');
+}
+
+// check if the token only consists of numbers and letters, if not then it dies.
+if (ctype_alnum($secret_token) == false) {
+  die('No such token');
 }
 
 // check the token with the database, if the token exists, it pulls the row with the node info.
