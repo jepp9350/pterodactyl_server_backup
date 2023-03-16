@@ -152,6 +152,36 @@ function check_database_connection($action, $database){
                                 echo "Couldn't create server_logs table, error: ".$e;
                             }
                         }
+                        // Checking backup_servers table.
+                        try {
+                            // sql to create "backup_servers" table
+                            $sql = "CREATE TABLE IF NOT EXISTS backup_servers (
+                                id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                                displayname VARCHAR(255) NOT NULL,
+                                ipaddress VARCHAR(255),
+                                secret_token VARCHAR(255),
+                                seen_date VARCHAR(255),
+                                ssh_username VARCHAR(255),
+                                ssh_password VARCHAR(255),
+                                ssh_port VARCHAR(255),
+                                backup_path VARCHAR(255),
+                                reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                )";
+                                
+                                if ($conn->query($sql) === TRUE) {
+                                #echo "Table backup_servers created successfully";
+                                } else {
+                                echo "Error creating table: " . $conn->error;
+                                }
+                        }
+                        //catch exception
+                        catch(Exception $e) {
+                            if (strpos($e,"already exists")) {
+                                echo "backup_servers table already exists.";
+                            } else {
+                                echo "Couldn't create backup_servers table, error: ".$e;
+                            }
+                        }
                         $conn->close();
                         return 200;
                         }
@@ -212,5 +242,21 @@ function fetch_notifications($userid){
     return "0 results";
     }
     $conn->close();
+}
+function generate_secret_key($length = 48) {
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[random_int(0, $charactersLength - 1)];
+    }
+    return $randomString;
+}
+// Sanitize input.
+function sanitize_input($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
 }
 ?>

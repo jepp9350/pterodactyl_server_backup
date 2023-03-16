@@ -2,30 +2,21 @@
 if (!isset($_SESSION['user'])) {
     $errors = array(
         array("none","Access denied","You're logged out."));
-    echo json_encode($errors);
+    die(json_encode($errors));
 } else {
-    echo fetch_servers();
-    /*$servers = array(
-        array("server1","Title for - 1","A loooong description here.."),
-        array("server2",15,13),
-        array("server3",5,2),
-        array("server4",17,15)
-    );*/
-    $servers = '[["server1","Title for - 1","A loooong description here.."],["server2",15,13],["server3",5,2],["server4",17,15]]';
-    $response = json_decode($servers);
-    #$response = json_encode($servers);
+    require('./functions.php');
+    echo fetch_backup_servers();
 }
-#echo $response;
-function fetch_servers(){
-    require './database.php';
+function fetch_backup_servers() {
+    require('./database.php');
     // Create connection
     $conn = new mysqli($database_host, $database_user, $database_user_password, $database_name);
-    // Check connection
+    // Check connection for errors
     if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+        echo "Failed to connect to database.";
+        return 500;
     }
-
-    $sql = "SELECT * FROM services";
+    $sql = "SELECT * FROM backup_servers";
     $result = $conn->query($sql);
     $servers = array();
     if ($result->num_rows > 0) {

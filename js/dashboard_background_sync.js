@@ -20,7 +20,6 @@ function notification_mark_read(notification_uuid) {
     notification_conn.open("GET", "./index.php?api_key=none&action=remove_notification&notification_id="+notification_uuid);
     notification_conn.send();
 }
-
 // Javascript => Backend => Refresh servers.
 function server_sync(){
     // Create an XMLHttpRequest object
@@ -51,7 +50,7 @@ function server_sync(){
                 </figure>\
                 </div>\
                 <div class="list-item-content">\
-                <div class="list-item-title">'+servers_array[server_array][2]+' <span class="tag is-normal is-danger is-rounded">Deactivated</span></div>\
+                <div class="list-item-title">'+servers_array[server_array][2]+' <span class="tag is-normal is-info is-light is-rounded">Server</span></div>\
                 <div class="list-item-description">ID: '+servers_array[server_array][0]+' IP: '+servers_array[server_array][3]+' Last seen: '+servers_array[server_array][4]+' Reg: '+servers_array[server_array][5]+'</div>\
                 </div>\
                 <div class="list-item-controls">\
@@ -108,6 +107,38 @@ function server_sync(){
     server_conn.open("GET", "./index.php?api_key=none&action=sync_servers");
     server_conn.send();
 }
+// Javascript => Backend => Refresh backup servers.
+function backup_server_sync(){
+    // Create an XMLHttpRequest object
+    const backup_server_conn = new XMLHttpRequest();
+    backup_server_conn.onload = function() {
+    // Here you can use the Data
+    backup_server_list_parrent = document.getElementById("add_new_server_field_server_location");
+    // remove old backup servers
+    backup_server_list_parrent.innerHTML = '';
+    // add new backup servers
+    backup_servers_array = JSON.parse(this.responseText);
+    backup_servers_temp = '';
+    backup_servers_temp = backup_servers_temp + '\
+    <option selected value="default">Location (where to store the backups)</option>';
+    if (backup_servers_array[0][0] != "0") {
+        for (var backup_server_array in backup_servers_array) {
+            if(backup_servers_array[backup_server_array][1] == "Access denied") {
+                show_notification('error','Your session has expired, please sign in.');
+                endfor;
+            }
+            //console.log(backup_servers_array[backup_server_array][0] + "title:" + backup_servers_array[backup_server_array][1]);
+            backup_servers_temp = backup_servers_temp + '\
+            <option value="'+backup_servers_array[backup_server_array][0]+'">'+backup_servers_array[backup_server_array][2]+'</option>';
+        }
+    }
+    backup_server_list_parrent.innerHTML = backup_servers_temp;
+    }
+    // Send a request
+    backup_server_conn.open("GET", "./index.php?api_key=none&action=sync_backup_servers");
+    backup_server_conn.send();
+}
+
 // Javascript => Backend => Refresh notifications.
 function notification_sync(){
     // Create an XMLHttpRequest object
@@ -169,6 +200,7 @@ function everySecondFunction() {
     show_notification('syncing','Refreshing...');
     notification_sync();
     server_sync();
+    backup_server_sync();
 }
 function show_notification(type,message){
     switch(type){
@@ -180,3 +212,4 @@ function show_notification(type,message){
             break;
     }
 }
+everySecondFunction();

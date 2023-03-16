@@ -36,8 +36,16 @@ if (isset($_GET["api_key"])) {
             require './dashboard/api/sync_servers.php';
             exit();
             break;
+        case "add_new_server":
+            require './dashboard/api/add_new_server.php';
+            exit();
+            break;
+        case "sync_backup_servers":
+            require './dashboard/api/sync_backup_servers.php';
+            exit();
+            break;
         default:
-            return "Invalid API call! (".$action.") not found.";
+            echo "Invalid API call! (".$action.") not found.";
             exit();
             break;
     }
@@ -64,6 +72,8 @@ if (!isset($_SESSION['user'])) {
         <link rel="stylesheet" href="./css/bulma-list.css">
         <link rel="stylesheet" href="./css/bulma-badge.min.css">
         <link rel="stylesheet" href="./css/dashboard-styles.css">
+        <link rel="stylesheet" href="./css/bulma-divider.min.css">
+        <link rel="stylesheet" href="https://cdn.rawgit.com/octoshrimpy/bulma-o-steps/master/bulma-steps.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <script src="https://cdn.jsdelivr.net/npm/bulma-toast@2.4.2/dist/bulma-toast.min.js"></script>
