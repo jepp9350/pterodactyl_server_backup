@@ -20,8 +20,12 @@ function doLastSeen($conn, $secret_token) {
   $result = $conn->query($sql);
 }
 
-function doUpdate() {
-    echo 'echo $USER > /tmp/idk';
+function doUpdate($updateactions) {
+  if ($updateactions == 'none') {
+    echo 'echo no action > /tmp/idk';
+  }
+  $updateactions = json_decode($updateactions);
+  // do stuff
 }
 
 // serve the bash code to install the cronjob in the /etc/cron.d dir
@@ -66,6 +70,13 @@ if ($result->num_rows > 0) {
     $db_ipaddress = $row['ipaddress'];
     $ip_locked = $row['ip_locked'];
     $client_ipadress = $_SERVER['REMOTE_ADDR'];
+
+    if (isset($row["updateactions"]) && !empty($row["updateactions"])) {
+      $updateactions = $row["updateactions"];
+    } else {
+      $updateactions = 'none';
+   }
+
   }
 } else {
     die('No such token');
@@ -80,7 +91,7 @@ if ($ip_locked == 'true' AND $db_ipaddress != $client_ipadress) {
 if ($action == 'u') {
     // run the update function, duh
     doLastSeen($conn, $secret_token);
-    doUpdate();
+    doUpdate($updateactions);
  } elseif ($action == 'i') {
     // first thing first, we gotta set the service ip in the db
     // check the ip syntax
