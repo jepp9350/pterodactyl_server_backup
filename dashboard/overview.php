@@ -1,20 +1,10 @@
-<style>
-
-#notifications_button:not(:hover) {
-    box-shadow: none;
-    background-color: white;
-    border-color: #dbdbdb;
-}
-</style>
-<!-- Create a new server => Modal => JS -->
-<script src="./js/bulma.modal.js"></script>
 <div class="container">
     <div class="block">
         <div class="columns mt-4">
             <div class="column">
                 <div class="box">
                 <!-- Notifications start-->
-                <div id="notifications" data-example>
+                <div id="notifications">
                     <div class="is-flex is-justify-content-end">
                     <div class="dropdown is-active is-right">
                         <div class="dropdown-trigger">
@@ -93,190 +83,6 @@
         </div>
     </div>
 </div>
-<script>
-// Javascript to toggle notifications drop down
-function toggle_notifications(){
-    if (document.getElementById("notifications_content").style.display == "none") {
-        document.getElementById("notifications_content").style.display="block"; 
-    } else {
-        document.getElementById("notifications_content").style.display="none"; 
-    }
-}
-// Javascript to delete a notification
-function notification_mark_read(notification_uuid) {
-    document.getElementById(notification_uuid).style.display="none";
-    // Create an XMLHttpRequest object
-    const notification_conn = new XMLHttpRequest();
-    // Define a callback function
-    notification_conn.onload = function() {
-        // Here you can use the Data
-        console.log(this.responseText);
-    }
-    // Send a request
-    notification_conn.open("GET", "./index.php?api_key=none&action=remove_notification&notification_id="+notification_uuid);
-    notification_conn.send();
-}
-
-// Javascript => Backend => Refresh servers.
-function server_sync(){
-    // Create an XMLHttpRequest object
-    const server_conn = new XMLHttpRequest();
-
-    // Define a callback function
-    server_conn.onload = function() {
-    // Here you can use the Data
-    server_list_parrent = document.getElementById("servers_list_parrent");
-    // remove old servers
-    server_list_parrent.innerHTML = '';
-    // add new servers
-    servers_array = JSON.parse(this.responseText);
-    console.log(this.responseText);
-    servers_temp = '';
-    if (servers_array[0][0] != "0") {
-        for (var server_array in servers_array) {
-            if(servers_array[server_array][1] == "Access denied") {
-                show_notification('error','Your session has expired, please sign in.');
-                endfor;
-            }
-            //console.log(servers_array[server_array][0] + "title:" + servers_array[server_array][1]);
-            servers_temp = servers_temp + '\
-            <div class="list-item">\
-                <div class="list-item-image">\
-                <figure class="image is-64x64">\
-                    <img style="background-color: #00d1b2;" class="is-rounded" src="./src/img/server_transferring_icon.png">\
-                </figure>\
-                </div>\
-                <div class="list-item-content">\
-                <div class="list-item-title">'+servers_array[server_array][2]+' <span class="tag is-normal is-danger is-rounded">Deactivated</span></div>\
-                <div class="list-item-description">ID: '+servers_array[server_array][0]+' IP: '+servers_array[server_array][3]+' Last seen: '+servers_array[server_array][4]+' Reg: '+servers_array[server_array][5]+'</div>\
-                </div>\
-                <div class="list-item-controls">\
-                <div class="buttons is-right">\
-                    <button class="button">\
-                    <span class="icon is-small">\
-                        <i class="fas fa-edit"></i>\
-                    </span>\
-                    <span>Edit</span>\
-                    </button>\
-                    <button class="button">\
-                    <span class="icon is-small">\
-                        <i class="fas fa-ellipsis-h"></i>\
-                    </span>\
-                    </button>\
-                </div>\
-                </div>\
-            </div>';
-        }
-    }
-    // Add the "add new server" entry to the server list.
-    servers_temp = servers_temp + '\
-    <div class="list-item">\
-        <div class="list-item-image">\
-        <figure class="image is-64x64">\
-            <img style="background-color: #00d1b2;" class="is-rounded" src="./src/img/logo_square.png">\
-        </figure>\
-        </div>\
-        <div class="list-item-content">\
-        <div class="list-item-title">Add a new server.</div>\
-        <div class="list-item-description">Start backing up more data!</div>\
-        </div>\
-        <div class="list-item-controls">\
-        <div class="buttons is-right">\
-            <button class="button" onclick="show_modal(\'create-new-server\')">\
-            <span class="icon is-small">\
-                <i class="fas fa-edit"></i>\
-            </span>\
-            <span>Create</span>\
-            </button>\
-            <button class="button" disabled>\
-            <span class="icon is-small">\
-                <i class="fas fa-ellipsis-h"></i>\
-            </span>\
-            </button>\
-        </div>\
-        </div>\
-    </div>\
-    </div>';
-    servers_list_parrent.innerHTML = servers_temp;
-    }
-
-    // Send a request
-    server_conn.open("GET", "./index.php?api_key=none&action=sync_servers");
-    server_conn.send();
-}
-// Javascript => Backend => Refresh notifications.
-function notification_sync(){
-    // Create an XMLHttpRequest object
-    const notification_conn = new XMLHttpRequest();
-
-    // Define a callback function
-    notification_conn.onload = function() {
-    // Here you can use the Data
-    notifications_list_parrent = document.getElementById("notifications_list_parrent");
-    // remove old notifications
-    notifications_list_parrent.innerHTML = '';
-    // add new notifications
-    notifications_array = JSON.parse(this.responseText);
-    //console.log(this.responseText);
-    notifications_temp = '';
-    if (notifications_array[0][0] == "notification_none") {
-        document.getElementById("notifications_count").innerHTML = 0;
-        document.getElementById("notifications_count").style.display = "none";
-    } else {
-        document.getElementById("notifications_count").innerHTML = notifications_array.length;
-        document.getElementById("notifications_count").style.display = "block";
-    }
-    for (var notification_array in notifications_array) {
-        if(notifications_array[notification_array][1] == "Access denied") {
-            show_notification('error','Your session has expired, please sign in.');
-        }
-        //console.log(notifications_array[notification_array][0] + "title:" + notifications_array[notification_array][1]);
-        notifications_temp = notifications_temp + '\
-        <a id="'+notifications_array[notification_array][0]+'" class="list-item">\
-            <div class="list-item-content">\
-                <div class="list-item-title">'+notifications_array[notification_array][1]+'</div>\
-                <div class="list-item-description">'+notifications_array[notification_array][2]+'</div>\
-            </div>\
-            <div class="list-item-controls">\
-                <button onclick="notification_mark_read(\''+notifications_array[notification_array][0]+'\')" class="button is-light is-link">\
-                    <span class="icon is-small">\
-                        <i class="fas fa-check"></i>\
-                    </span>\
-                </button>\
-            </div>\
-        </a>';
-    }
-    notifications_list_parrent.innerHTML = notifications_temp;
-    }
-
-    // Send a request
-    //notification_conn.open("GET", "./dashboard/api/sync_notifications.php");
-    notification_conn.open("GET", "./index.php?api_key=none&action=sync_notifications");
-    notification_conn.send();
-}
-// Javascript => Every 1 second => Run functions.
-function refresh_secondly(){
-setInterval(everySecondFunction, 5000);
-}
-refresh_secondly();
-
-function everySecondFunction() {
-// stuff you want to do every second
-    show_notification('syncing','Refreshing...');
-    notification_sync();
-    server_sync();
-}
-function show_notification(type,message){
-    switch(type){
-        case 'syncing':
-            //bulmaToast.toast({ message: message, position: 'bottom-right', type: 'is-success', opacity: 0.8, duration: 500 });
-            break;
-        case 'error':
-            bulmaToast.toast({ message: message, position: 'bottom-right', type: 'is-warning', opacity: 0.8, duration: 5000 });
-            break;
-    }
-}
-</script>
 <!-- Create a new server => Modal -->
 <div id="create-new-server" class="modal">
   <div class="modal-background"></div>
@@ -287,16 +93,47 @@ function show_notification(type,message){
     </header>
     <section class="modal-card-body">
       <!-- Content ... -->
+      <!-- Service displayname field -->
+      <div class="field">
+        <label class="label">Server nickname (displayname)</label>
+        <p class="control has-icons-left has-icons-right">
+            <input oninput="add_new_server_field_display_name_change()" id="add_new_server_field_display_name" class="input" type="text" placeholder="My server 1 (name)">
+            <span class="icon is-small is-left">
+                <i class="fa-solid fa-server"></i>
+            </span>
+            <span class="icon is-small is-right">
+                <i id="add_new_server_field_display_name_icon_right" class="fas fa-check"></i>
+            </span>
+        </p>
+      </div>
+        <!-- Service type field -->
+      <div class="field">
+        <label class="label">Choose server type</label>
+        <p class="control has-icons-left">
+            <span class="select">
+            <select onchange="add_new_server_field_server_type_change()" id="add_new_server_field_server_type" name="server_type">
+                <option selected value="default">Server type</option>
+                <option value="backup_location">Store backups on this server (backup location)</option>
+                <option value="backup_server">Backup this server</option>
+            </select>
+            </span>
+            <span class="icon is-small is-left">
+            <i class="fa-solid fa-gear"></i>
+            </span>
+        </p>
+      </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-success">Save changes</button>
+      <button id="add_new_server_button_submit" class="button is-success" disabled>Submit</button>
       <button class="button">Cancel</button>
+      <button class="button is-warning">Reset fields</button>
     </footer>
   </div>
 </div>
-<!-- Script to activate create a new server Modal -->
-<script>
-    function show_modal($modal_id) {
-        document.getElementById($modal_id).classList.add('is-active');
-    }
-</script>
+<!-- Insert javascript -->
+<!-- Create a new server => Modal => JS -->
+<script src="./js/bulma.modal.js"></script>
+<!-- Create a new server => validate form => JS -->
+<script src="./js/add_new_server_form.js"></script>
+<!-- Dashboard => Background => Syncronize => JS -->
+<script src="./js/dashboard_background_sync.js"></script>

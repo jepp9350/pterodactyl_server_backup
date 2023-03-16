@@ -1,0 +1,16 @@
+#notifications_button:not(:hover) {
+    box-shadow: none;
+    background-color: white;
+    border-color: #dbdbdb;
+}
+.form_field_icon_valid{
+    color: #00d1b2;
+    display: block;
+}
+.form_field_icon_invalid{
+    color: red;
+    display: block;
+}
+.form_field_icon_default{
+    display: none;
+}
