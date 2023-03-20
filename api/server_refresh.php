@@ -3,6 +3,10 @@
 // curl command for install (for update replace i with u):
 // bash <(curl -d 'action=i&secret_token=SkctiyZrHdGuJVvQ8Y1w5ttU7EKN1ySeXWPYVhypGg398cOL' -X POST 172.16.13.33/api/)
 
+// updateactions example: [["backup db","/etc/mysql/dbfiles"],["backup data","/var/lib/pterodactyl/daemon-data"],["jeg ved det ikke","/var/lib/pterodactyl/daemon-data"]]
+
+// please put en timeout når man laver en ny action, så scriptet ikke kommer til at override noget
+
 require_once './database.php';
 
 // get the FQDN var
@@ -17,15 +21,28 @@ if ($conn->connect_error) {
 function doLastSeen($conn, $secret_token) {
   $timestamp = date("Y-m-d H:i:s");
   $sql = "UPDATE services SET seen_date='$timestamp' WHERE secret_token='$secret_token'";
-  $result = $conn->query($sql);
+  $conn->query($sql);
 }
 
-function doUpdate($updateactions) {
-  if ($updateactions == 'none') {
-    echo 'echo no action > /tmp/idk';
+function doUpdate($updateactions, $conn, $secret_token) {
+  $action = $updateactions[0][0];
+  $dir = $updateactions[0][1];
+
+  //var_dump($updateactions);
+  echo $action . ' dir: ' . $dir;
+
+  // remove the now finished/running task from the list of actions, so we can remove only that action from the db
+  array_shift($updateactions); 
+  $updateactions = json_encode($updateactions);
+
+  $sql = "UPDATE services SET updateactions='$updateactions' WHERE secret_token='$secret_token'";
+
+  if (mysqli_query($conn, $sql)) {
+    // success
+  } else {
+    echo "Error updating record: " . mysqli_error($conn);
   }
-  $updateactions = json_decode($updateactions);
-  // do stuff
+
 }
 
 // serve the bash code to install the cronjob in the /etc/cron.d dir
@@ -61,7 +78,7 @@ if (ctype_alnum($secret_token) == false) {
   die('No such token');
 }
 
-// check the token with the database, if the token exists, it pulls the row with the node info.
+// check the token with the database, if the token exists, it pulls the row with the node/service info.
 $result = mysqli_query($conn,"SELECT * FROM `services` WHERE secret_token = '$secret_token'");
 if ($result->num_rows > 0) {
   // store the info in variables
@@ -73,10 +90,12 @@ if ($result->num_rows > 0) {
 
     if (isset($row["updateactions"]) && !empty($row["updateactions"])) {
       $updateactions = $row["updateactions"];
-    } else {
-      $updateactions = 'none';
-   }
-
+      if ($updateactions == '[]' OR $updateactions == '') {
+        $updateactions = 'none';
+      } else {
+        $updateactions = json_decode($updateactions);
+      }
+    }
   }
 } else {
     die('No such token');
@@ -89,9 +108,14 @@ if ($ip_locked == 'true' AND $db_ipaddress != $client_ipadress) {
 
 // the request checks out, and we're ready to either serve the update/install script
 if ($action == 'u') {
-    // run the update function, duh
+    // run the timestamp last seen function, duh
     doLastSeen($conn, $secret_token);
-    doUpdate($updateactions);
+    // check if there are any actions, if not then it does nothing
+    if ($updateactions == 'none') {
+      die('echo no action');
+    }
+    doUpdate($updateactions, $conn, $secret_token);
+
  } elseif ($action == 'i') {
     // first thing first, we gotta set the service ip in the db
     // check the ip syntax
@@ -107,7 +131,7 @@ if ($action == 'u') {
       }
     } else {
       echo("$client_ipadress is not a valid IP address");
-    }   
+    }
 } else {
   // no known access specified
    die('Unknown action');
