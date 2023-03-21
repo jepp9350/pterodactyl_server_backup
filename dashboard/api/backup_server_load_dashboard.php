@@ -36,6 +36,10 @@ if (!isset($_SESSION['user'])) {
 }
 function get_server_dashboard_info($server_id, $backup_server_ip, $backup_server_ssh_username, $backup_server_ssh_password, $backup_server_ssh_port) {
     $server_storage_locations = get_server_storage($backup_server_ip, $backup_server_ssh_username, $backup_server_ssh_password, $backup_server_ssh_port);
+    // Check if the server is online
+    if (str_contains($server_storage_locations,"500")) {
+        die;
+    }
     echo '
 <div class="column is-12">
 <div class="divider">Manage server</div>
@@ -98,8 +102,8 @@ function get_server_storage($host, $user, $pass, $port) {
         <button class="delete"></button>
         <strong>Missing SSH credentials</strong> - Please enter the SSH credentials for the backup server.
       </div>';
-        echo "Error: Empty values - SSH connection failed.<br>Error code: ";
-        return 500;
+        echo "Error: Empty values - SSH connection failed.<br>Error code: 500";
+        return 'ERROR: 500 - SSH credentials missing.';
     }
 
     include('Net/SSH2.php');
@@ -114,8 +118,8 @@ function get_server_storage($host, $user, $pass, $port) {
         <button class="delete"></button>
         <strong>SSH connection failed</strong> - Please check the SSH credentials for the backup server.
         </div>';
-        echo "Error: SSH connection failed.<br>Error code: ";
-        return 500;
+        echo "Error: SSH connection failed.<br>Error code: 500";
+        return 'ERROR: 500 - SSH connection failed.';
     } else {
         //echo "Login successfull<br>";
         //echo "Current directory: ";
@@ -229,6 +233,15 @@ function create_backup_server_overview_storage_element($column_Filesystem = "non
     $column_centent_temp .= '<div class="subtitle is-6">' . $column_Storage_used . '</div>';
     $column_centent_temp .= '</div>';
     $column_centent_temp .= '</div>';
+    // Create the progress bar color based on the storage used
+    if (str_replace("%", "", $column_Storage_used) >= 90) {
+        $column_centent_temp .= '<progress class="progress is-danger" value="' . str_replace("%", "", $column_Storage_used) . '" max="100">' . $column_Storage_used . '</progress>';
+    } elseif (str_replace("%", "", $column_Storage_used) >= 80) {
+        $column_centent_temp .= '<progress class="progress is-warning" value="' . str_replace("%", "", $column_Storage_used) . '" max="100">' . $column_Storage_used . '</progress>';
+    } else {
+        $column_centent_temp .= '<progress class="progress is-primary" value="' . str_replace("%", "", $column_Storage_used) . '" max="100">' . $column_Storage_used . '</progress>';
+    }
+
     // Close the column box and div
     $column_centent_temp .= '</div>';
     $column_centent_temp .= '</div>';

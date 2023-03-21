@@ -245,6 +245,8 @@ function toggle_backup_server_manager(backup_server_id) {
         modal.classList.remove('is-active');
     } else {
         // if it is not active, open it.
+
+        document.getElementById('server_overview_manage_body').innerHTML = '<p>Connecting to server...</p><progress class="progress is-small is-primary" max="100">15%</progress>';
         modal.classList.add('is-active');
     }
     // Get the server information.
@@ -252,7 +254,7 @@ function toggle_backup_server_manager(backup_server_id) {
     const backup_server_overview_conn = new XMLHttpRequest();
     backup_server_overview_conn.onload = function() {
         // Here you can use the Data
-        server_overview_manage_body.innerHTML =this.responseText;
+        document.getElementById('server_overview_manage_body').innerHTML =this.responseText;
 
 
     // Send a request
