@@ -89,7 +89,7 @@ function check_step_2() {
                 return false;
             }
         }
-        if (field_is_valid('add_new_server_field_server_ssh_username','server_display_name') && field_is_valid('add_new_server_field_server_ssh_password','server_display_name') && field_is_valid('add_new_server_field_server_ssh_port','server_display_name')){
+        if (storage_location != "default" && field_is_valid('add_new_server_field_server_ssh_hostname','server_ssh_password') && field_is_valid('add_new_server_field_server_ssh_username','server_display_name') && field_is_valid('add_new_server_field_server_ssh_password','server_password') && field_is_valid('add_new_server_field_server_ssh_port','server_display_name')){
             form_submit_button.disabled = false;
             form_step_3.classList.add('is-active');
             form_step_2.classList.remove('is-dashed');
@@ -139,9 +139,11 @@ function add_new_server_field_server_location_change() {
 }
 function add_new_server_field_server_type_change() {
     check_step_1();
+    check_step_2();
 }
 function add_new_server_field_display_name_change() {
     check_step_1();
+    check_step_2();
 }
 function add_new_server_field_server_ssh_username_change() {
     check_step_2();
@@ -177,6 +179,10 @@ function field_is_valid(field_id, requirement_category) {
             max_length = 32;
             is_directory = false;
             break;
+        case "server_password":
+            min_length = 1;
+            max_length = 32;
+            is_directory = false;
         default:
             min_length = 1;
             max_length = 32;
@@ -202,6 +208,16 @@ function field_is_valid(field_id, requirement_category) {
             //console.log("field was invalid!");
             return false;
         }
+    } else if (requirement_category == "server_password") {
+        // Check if the password is valid
+        if (field.value.length >= min_length && field.value.length <= max_length) {
+            //console.log("field was valid");
+            return true;
+        } else {
+            //console.log("field was invalid!");
+            return false;
+        }
+
     } else if (requirement_category == "backup_server") {
         // Check if the backup server is valid
         if (field.value != "default" && field.value.length >= min_length && field.value.length <= max_length && !field_has_special_chars) {
@@ -242,8 +258,9 @@ function create_server_button() {
             // Set variables
             if (document.getElementById('add_new_server_field_server_backup_location').value == "custom") {
                 server_backup_location = document.getElementById('add_new_server_field_server_backup_location_custom').value;
+            } else {
+                server_backup_location = document.getElementById('add_new_server_field_server_backup_location').value;
             }
-            server_backup_location = document.getElementById('add_new_server_field_server_backup_location').value;
             server_ssh_username = document.getElementById('add_new_server_field_server_ssh_username').value;
             server_ssh_password = document.getElementById('add_new_server_field_server_ssh_password').value;
             server_ssh_port = document.getElementById('add_new_server_field_server_ssh_port').value;
@@ -277,3 +294,36 @@ function reset_fields() {
     add_new_server_field_display_name_change();
     add_new_server_field_server_type_change();
 }
+function timeSince(date) {
+    if (date == null || date == "" || date == "Never") {
+        return "Never";
+    }
+    date = Date.parse(date);
+    var seconds = Math.floor((new Date() - date) / 1000);
+  
+    var interval = seconds / 31536000;
+  
+    if (interval > 1) {
+      return Math.floor(interval) + " years";
+    }
+    interval = seconds / 2592000;
+    if (interval > 1) {
+      return Math.floor(interval) + " months";
+    }
+    interval = seconds / 86400;
+    if (interval > 1) {
+      return Math.floor(interval) + " days";
+    }
+    interval = seconds / 3600;
+    if (interval > 1) {
+      return Math.floor(interval) + " hours";
+    }
+    interval = seconds / 60;
+    if (interval > 1) {
+      return Math.floor(interval) + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
+  }
+  var aDay = 24*60*60*1000;
+  console.log(timeSince(new Date(Date.now()-aDay)));
+  console.log(timeSince(new Date(Date.now()-aDay*2)));

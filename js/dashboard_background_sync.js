@@ -1,25 +1,3 @@
-// Javascript to toggle notifications drop down
-function toggle_notifications(){
-    if (document.getElementById("notifications_content").style.display == "none") {
-        document.getElementById("notifications_content").style.display="block"; 
-    } else {
-        document.getElementById("notifications_content").style.display="none"; 
-    }
-}
-// Javascript to delete a notification
-function notification_mark_read(notification_uuid) {
-    document.getElementById(notification_uuid).style.display="none";
-    // Create an XMLHttpRequest object
-    const notification_conn = new XMLHttpRequest();
-    // Define a callback function
-    notification_conn.onload = function() {
-        // Here you can use the Data
-        console.log(this.responseText);
-    }
-    // Send a request
-    notification_conn.open("GET", "./index.php?api_key=none&action=remove_notification&notification_id="+notification_uuid);
-    notification_conn.send();
-}
 // Javascript => Backend => Refresh servers.
 function server_sync(){
     // Create an XMLHttpRequest object
@@ -114,11 +92,14 @@ function backup_server_sync(){
     backup_server_conn.onload = function() {
     // Here you can use the Data
     backup_server_list_parrent = document.getElementById("add_new_server_field_server_location");
+    backup_servers_list_parrent_overview = document.getElementById("backup_servers_list_parrent_overview");
     // remove old backup servers
     backup_server_list_parrent.innerHTML = '';
+    //backup_servers_list_parrent_overview.innerHTML = '';
     // add new backup servers
     backup_servers_array = JSON.parse(this.responseText);
     backup_servers_temp = '';
+    backup_servers_list_temp = '';
     backup_servers_temp = backup_servers_temp + '\
     <option selected value="default">Location (where to store the backups)</option>';
     if (backup_servers_array[0][0] != "0") {
@@ -128,17 +109,166 @@ function backup_server_sync(){
                 endfor;
             }
             //console.log(backup_servers_array[backup_server_array][0] + "title:" + backup_servers_array[backup_server_array][1]);
+            // Add the backup server to the "add new server" field.
             backup_servers_temp = backup_servers_temp + '\
             <option value="'+backup_servers_array[backup_server_array][0]+'">'+backup_servers_array[backup_server_array][2]+'</option>';
+            // Set default image for the backup server.
+            backup_server_image = "./src/img/server_transferring_icon.png";
+            backup_server_image_color = "#00d1b2";
+            // Check when the backup server was last seen.
+            if(backup_servers_array[backup_server_array][4] == null) {
+                backup_servers_array[backup_server_array][4] = "Never";
+                backup_server_image = "./src/img/server_transferring_icon.png";
+                backup_server_image_color = "#ff3860";
+
+            }
+            // Check what the backup server's ip is.
+            if(backup_servers_array[backup_server_array][3] == null) {
+                backup_servers_array[backup_server_array][3] = "Unknown";
+            }
+            // check if the backup server already is in the overview.
+            if(!!document.getElementById('server_manage_id_'+backup_servers_array[backup_server_array][0]+'')) {
+
+                // Check if the backup server manager is active.
+                if (document.getElementById('server_manage_id_'+backup_servers_array[backup_server_array][0]+'').style.display != "none") {
+                    is_displayed = "block";
+                } else {
+                    is_displayed = "none";
+                }
+            } else {
+                is_displayed = "none";
+                // log that it was not found.
+                console.log("Server not found: "+backup_servers_array[backup_server_array][0]);
+            }
+            // Add the backup server to the overview.
+            backup_servers_list_temp = backup_servers_list_temp + '\
+            <div class="list-item">\
+                <div class="list-item-image">\
+                <figure class="image is-64x64">\
+                    <img style="background-color: '+backup_server_image_color+';" class="is-rounded" src="'+backup_server_image+'">\
+                </figure>\
+                </div>\
+                <div class="list-item-content">\
+                <div class="list-item-title">'+backup_servers_array[backup_server_array][2]+' <span class="tag is-normal is-info is-light is-rounded">Backup location</span></div>\
+                <div class="list-item-description">ID: '+backup_servers_array[backup_server_array][0]+' IP: '+backup_servers_array[backup_server_array][3]+' Last seen: '+timeSince(backup_servers_array[backup_server_array][4])+' Reg: '+backup_servers_array[backup_server_array][5]+'</div>\
+                <div class="columns control_server_dashboard" style="display:'+is_displayed+';" id="server_manage_id_'+backup_servers_array[backup_server_array][0]+'">\
+                <div class="column is-12">\
+                    <div class="divider">Manage server</div>\
+                    <!-- Manage server -->\
+                    <div class="buttons">\
+                        <button class="button is-small is-info">\
+                        <span class="icon is-small">\
+                            <i class="fas fa-play"></i>\
+                        </span>\
+                        <span>Start</span>\
+                        </button>\
+                        <button class="button is-small is-warning">\
+                            <span class="icon is-small">\
+                                <i class="fas fa-pause"></i>\
+                            </span>\
+                            <span>Pause</span>\
+                        </button>\
+                        <button class="button is-small is-danger">\
+                            <span class="icon is-small">\
+                                <i class="fas fa-stop"></i>\
+                            </span>\
+                            <span>Stop</span>\
+                        </button>\
+                    </div>\
+                    <!-- End of manage server -->\
+                </div>\
+                <div class="column is-12">\
+                    <div class="divider">Server storage</div>\
+                    <!-- Server storage -->\
+                    <div class="columns">\
+                        <div class="column">\
+                            <p class="is-6">Backup storage: 60%</p>\
+                            <progress class="progress is-success" value="60" max="100">60%</progress>\
+                        </div>\
+                        <div class="column">\
+                            <p class="is-6">Total storage: 60%</p>\
+                            <progress class="progress is-warning" value="60" max="100">60%</progress>\
+                        </div>\
+                    </div>\
+                    <!-- End of server storage -->\
+                </div>\
+                <div class="column is-12">\
+                    <div class="divider">Server information</div>\
+                    <!-- Server information -->\
+                    <div class="columns">\
+                        <div class="column">\
+                            <div class="field">\
+                                <label class="label">Server name</label>\
+                                <div class="control">\
+                                    <input class="input" type="text" placeholder="Server name">\
+                                </div>\
+                                <p class="help">This is the name of the server.</p>\
+                            </div>\
+                        </div>\
+                    </div>\
+                    <!-- End of server information -->\
+                    </div>\
+                </div>\
+            </div>\
+                <div class="list-item-controls">\
+                <div class="buttons is-right">\
+                    <button class="button">\
+                    <span class="icon is-small">\
+                        <i class="fas fa-edit"></i>\
+                    </span>\
+                    <span>Edit</span>\
+                    </button>\
+                    <button onclick="toggle_backup_server_manager('+backup_servers_array[backup_server_array][0]+')" class="button">\
+                    <span class="icon is-small">\
+                        <i class="fas fa-ellipsis-h"></i>\
+                    </span>\
+                    </button>\
+                </div>\
+                </div>\
+            </div>';
         }
     }
     backup_server_list_parrent.innerHTML = backup_servers_temp;
+    backup_servers_list_parrent_overview.innerHTML = backup_servers_list_temp;
     }
     // Send a request
     backup_server_conn.open("GET", "./index.php?api_key=none&action=sync_backup_servers");
     backup_server_conn.send();
 }
+// Javascript => Backend => Toggle the backup server manager.
+function toggle_backup_server_manager(backup_server_id) {
+    // toggle it
+    modal = document.getElementById('server_overview_manage');
+    // check if the modal is active.
+    if (modal.classList.contains('is-active') === true) {
+        // if it is active, close it.
+        modal.classList.remove('is-active');
+    } else {
+        // if it is not active, open it.
 
+        document.getElementById('server_overview_manage_body').innerHTML = '<p>Connecting to server...</p><progress class="progress is-small is-primary" max="100">15%</progress>';
+        modal.classList.add('is-active');
+    }
+    // Get the server information.
+    // Create an XMLHttpRequest object
+    const backup_server_overview_conn = new XMLHttpRequest();
+    backup_server_overview_conn.onload = function() {
+        // Here you can use the Data
+        document.getElementById('server_overview_manage_body').innerHTML =this.responseText;
+
+
+    // Send a request
+}
+    backup_server_overview_conn.open("GET", "./index.php?api_key=none&action=backup_server_load_dashboard&backup_server_id="+backup_server_id);
+    backup_server_overview_conn.send();
+
+    /*
+    if(document.getElementById('server_manage_id_'+backup_server_id).style.display == "none") {
+        document.getElementById('server_manage_id_'+backup_server_id).style.display = "block";
+    } else {
+        document.getElementById('server_manage_id_'+backup_server_id).style.display = "none";
+    }*/
+}
 // Javascript => Backend => Refresh notifications.
 function notification_sync(){
     // Create an XMLHttpRequest object
@@ -213,3 +343,27 @@ function show_notification(type,message){
     }
 }
 everySecondFunction();
+// Javascript to the backup server modal.
+function show_modal_backup_server(id) {
+    // Define variables
+    display_name = document.getElementById('add_new_server_field_display_name').value;
+    server_type = document.getElementById('add_new_server_field_server_type').value;
+    switch(server_type) {
+        case "backup_server":
+            // Set variables
+            //server_backup_location = document.getElementById('add_new_server_field_server_location').value;
+            break;
+        case "backup_location":
+            // Set variables
+            if (document.getElementById('add_new_server_field_server_backup_location').value == "custom") {
+                server_backup_location = document.getElementById('add_new_server_field_server_backup_location_custom').value;
+            } else {
+                server_backup_location = document.getElementById('add_new_server_field_server_backup_location').value;
+            }
+            server_ssh_username = document.getElementById('add_new_server_field_server_ssh_username').value;
+            server_ssh_password = document.getElementById('add_new_server_field_server_ssh_password').value;
+            server_ssh_port = document.getElementById('add_new_server_field_server_ssh_port').value;
+            break;
+
+    }
+}

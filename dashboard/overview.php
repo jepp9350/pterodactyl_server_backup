@@ -1,44 +1,84 @@
 <div class="container">
     <div class="block">
+        <!-- Urgent notifications -->
+        <?php require './dashboard_urgent_notifications.php'; ?>
         <div class="columns mt-4">
             <div class="column">
                 <div class="box">
-                <!-- Notifications start-->
-                <div id="notifications">
-                    <div class="is-flex is-justify-content-end">
-                    <div class="dropdown is-active is-right">
-                        <div class="dropdown-trigger">
-                        <button onclick="toggle_notifications()" id="notifications_button" class="button is-focused" aria-haspopup="true" aria-controls="dropdown-menu">
-                            <span class="icon is-small"><span style="display: none;" title="Notifications" id="notifications_count" class="badge">0</span>
-                            <i class="fas fa-bell" aria-hidden="true"></i> 
-                            </span>
-                        </button>
+                    <div class="columns">
+                        <div class="column is-half">
+                            <p class="is-size-4">Overview</p>
+                            <p class="is-size-6">Backup servers</p>
                         </div>
-                        <div style="display: none!important;" class="dropdown-menu" id="notifications_content" role="menu">
-                        <div class="dropdown-content py-0">
-                            <div class="list has-overflow-ellipsis" style="width: 340px" id="notifications_list_parrent">
-                            <a id="loading_notifications" class="list-item">
-                                <div class="list-item-content">
-                                <div class="list-item-title">Loading announcements...</div>
-                                <div class="list-item-description">Please wait a moment.</div>
-                                </div>
+                        <div class="column is-half">
+                        <!-- Notifications start-->
+                            <div id="notifications">
+                                <div class="is-flex is-justify-content-end">
+                                <div class="dropdown is-active is-right">
+                                    <div class="dropdown-trigger">
+                                    <button onclick="toggle_notifications()" id="notifications_button" class="button is-focused" aria-haspopup="true" aria-controls="dropdown-menu">
+                                        <span id="notificatitons_span" class="icon is-small"><span style="display: none;" title="Notifications" id="notifications_count" class="badge">0</span>
+                                        <i id="notifications_icon" class="fas fa-bell" aria-hidden="true"></i> 
+                                        </span>
+                                    </button>
+                                    </div>
+                                    <div style="display: none!important;" class="dropdown-menu" id="notifications_content" role="menu">
+                                    <div class="dropdown-content py-0">
+                                        <div class="list has-overflow-ellipsis" style="width: 340px" id="notifications_list_parrent">
+                                        <a id="loading_notifications" class="list-item">
+                                            <div class="list-item-content">
+                                            <div class="list-item-title">Loading announcements...</div>
+                                            <div class="list-item-description">Please wait a moment.</div>
+                                            </div>
 
-                                <div class="list-item-controls">
-                                <button onclick="notification_mark_read('loading_notifications')" class="button is-light is-link">
-                                    <span class="icon is-small">
-                                    <i class="fas fa-check"></i>
-                                    </span>
-                                </button>
+                                            <div class="list-item-controls">
+                                            <button onclick="notification_mark_read('loading_notifications')" class="button is-light is-link">
+                                                <span class="icon is-small">
+                                                <i class="fas fa-check"></i>
+                                                </span>
+                                            </button>
+                                            </div>
+                                        </a>
+                                        </div>
+                                    </div>
+                                    </div>
                                 </div>
-                            </a>
+                                </div>
                             </div>
-                        </div>
-                        </div>
-                    </div>
+                    <!-- Notifications end -->
                     </div>
                 </div>
-                <!-- Notifications end -->
-                First column
+                <!-- Backup server list start -->
+                <div id="backup_servers_list_parrent_overview" class="list has-visible-pointer-controls">
+                    <div class="list-item">
+                        <div class="list-item-image">
+                            <figure class="image is-64x64">
+                                <img src="https://via.placeholder.com/128x128.png?text=Image" class="is-rounded">
+                            </figure>
+                        </div>
+                        <div class="list-item-content">
+                        <div class="list-item-title">Loading backup servers...</div>
+                        <div class="list-item-description">Please wait while your backup servers are loading.</div>
+                        </div>
+                        <div class="list-item-controls">
+                        <div class="buttons is-right">
+                            <button class="button" disabled>
+                            <span class="icon is-small">
+                                <i class="fas fa-edit"></i>
+                            </span>
+                            <span>Create</span>
+                            </button>
+
+                            <button class="button" disabled>
+                            <span class="icon is-small">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </span>
+                            </button>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
                 </div>
             </div>
             <div class="column">
@@ -205,6 +245,15 @@
         </div>
         <div class="columns is-multiline">
             <div class="column is-half">
+                <!-- SSH credentials => Hostname -->
+                <div class="field">
+                    <label class="label">SSH hostname</label>
+                    <p class="control has-icons-left has-icons-right">
+                        <input name="server_ssh_hostname" oninput="add_new_server_field_server_ssh_hostname_change()" id="add_new_server_field_server_ssh_hostname" class="input" type="text" placeholder="www.example.com">
+                        <span class="icon is-small is-left">
+                            <i class="fa-solid fa-server"></i>
+                    </p>
+                </div>
                 <!-- SSH credentials => Username -->
                 <div class="field">
                     <label class="label">SSH username</label>
@@ -259,6 +308,82 @@
     </footer>
   </div>
 </div>
+<!-- Manage server modal -->
+<div class="modal" id="server_overview_manage">
+<div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Managing a backup server</p>
+      <button class="delete" aria-label="close"></button>
+    </header>
+    <section id="server_overview_manage_body" class="modal-card-body">
+        <!-- Content here -->
+                <div class="title is-4" id="manage_backup_server_title">none selected</div>
+                <div class="subtitle is-6" id="manage_backup_server_subtitle">ID: '+backup_servers_array[backup_server_array][0]+' IP: '+backup_servers_array[backup_server_array][3]+' Last seen: '+timeSince(backup_servers_array[backup_server_array][4])+' Reg: '+backup_servers_array[backup_server_array][5]+'</div>
+                <div class="columns is-multiline control_server_dashboard" style="display:'+is_displayed+';" id="server_manage_id_'+backup_servers_array[backup_server_array][0]+'">
+                <div class="column is-12">
+                    <div class="divider">Manage server</div>
+                    <!-- Manage server -->
+                    <div class="buttons">
+                        <button class="button is-small is-info">
+                        <span class="icon is-small">
+                            <i class="fas fa-play"></i>
+                        </span>
+                        <span>Start</span>
+                        </button>
+                        <button class="button is-small is-warning">
+                            <span class="icon is-small">
+                                <i class="fas fa-pause"></i>
+                            </span>
+                            <span>Pause</span>
+                        </button>
+                        <button class="button is-small is-danger">
+                            <span class="icon is-small">
+                                <i class="fas fa-stop"></i>
+                            </span>
+                            <span>Stop</span>
+                        </button>
+                    </div>
+                    <!-- End of manage server -->
+                </div>
+                <div class="column is-12">
+                    <div class="divider">Server storage</div>
+                    <!-- Server storage -->
+                    <div class="columns">
+                        <div class="column">
+                            <p class="is-6">Backup storage: 60%</p>
+                            <progress class="progress is-success" value="60" max="100">60%</progress>
+                        </div>
+                        <div class="column">
+                            <p class="is-6">Total storage: 60%</p>
+                            <progress class="progress is-warning" value="60" max="100">60%</progress>
+                        </div>
+                    </div>
+                    <!-- End of server storage -->
+                </div>
+                <div class="column is-12">
+                    <div class="divider">Server information</div>
+                    <!-- Server information -->
+                    <div class="columns">
+                        <div class="column">
+                            <div class="field">
+                                <label class="label">Server name</label>
+                                <div class="control">
+                                    <input class="input" type="text" placeholder="Server name">
+                                </div>
+                                <p class="help">This is the name of the server.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End of server information -->
+                    </div>
+                </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-success">Save changes</button>
+      <button class="button">Cancel</button>
+    </footer>
+</div>
 <!-- Insert javascript -->
 <!-- Create a new server => Modal => JS -->
 <script src="./js/bulma.modal.js"></script>
@@ -266,3 +391,5 @@
 <script src="./js/add_new_server_form.js"></script>
 <!-- Dashboard => Background => Syncronize => JS -->
 <script src="./js/dashboard_background_sync.js"></script>
+<!-- Dashboard => Background => Notifications => JS -->
+<script src="./js/notifications_background.js"></script>
