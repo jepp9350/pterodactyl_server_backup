@@ -15,7 +15,7 @@ if (!isset($_SESSION['user'])) {
         return 500;
     }
     // Get the backup servers login credentials from the database and store them in variables for later use
-    $sql = "SELECT ipaddress, ssh_username, ssh_password, ssh_port, backup_path FROM backup_servers WHERE id = '".$_GET['backup_server_id']."'";
+    $sql = "SELECT ipaddress, ssh_username, ssh_password, ssh_port, backup_path, displayname FROM backup_servers WHERE id = '".$_GET['backup_server_id']."'";
     // Run the query
     $result = $conn->query($sql);
     // If there is a result
@@ -28,19 +28,64 @@ if (!isset($_SESSION['user'])) {
             $backup_server_ssh_password = $row["ssh_password"];
             $backup_server_ssh_port = $row["ssh_port"];
             $backup_server_backup_path = $row["backup_path"];
+            $backup_server_displayname = $row["displayname"];
         }
     } else {
         echo "No results";
     }
-    echo get_server_dashboard_info($_GET['backup_server_id'], $backup_server_ip, $backup_server_ssh_username, $backup_server_ssh_password, $backup_server_ssh_port);
+    echo get_server_dashboard_info($_GET['backup_server_id'], $backup_server_ip, $backup_server_ssh_username, $backup_server_ssh_password, $backup_server_ssh_port, $backup_server_backup_path, $backup_server_displayname);
 }
-function get_server_dashboard_info($server_id, $backup_server_ip, $backup_server_ssh_username, $backup_server_ssh_password, $backup_server_ssh_port) {
+function get_server_dashboard_info($server_id, $backup_server_ip, $backup_server_ssh_username, $backup_server_ssh_password, $backup_server_ssh_port, $backup_server_backup_path, $backup_server_displayname) {
     $server_storage_locations = get_server_storage($backup_server_ip, $backup_server_ssh_username, $backup_server_ssh_password, $backup_server_ssh_port);
     // Check if the server is online
     if (str_contains($server_storage_locations,"500")) {
         die;
     }
     echo '
+    <div class="column is-12">
+    <div class="divider">Server information</div>
+    <!-- Server information -->
+    <div class="columns is-multiline">
+        <!-- Server name -->
+        <div class="column is-half">
+            <div class="field">
+                <label class="label">Server name</label>
+                <div class="control">
+                    <input class="input" type="text" placeholder="Server name" value="'.$backup_server_displayname.'" disabled>
+                </div>
+                <p class="help">This is the friendly display name of the server.</p>
+            </div>
+        </div>
+        <!-- End of server name -->
+        <!-- Server IP -->
+        <div class="column is-half">
+            <div class="field">
+                <label class="label">Server IP</label>
+                <input class="input" type="text" placeholder="Server ip" value="'.$backup_server_ip.'" disabled>
+                <p class="help">This is the IP address/hostname of the server.</p>
+            </div>
+        </div>
+        <!-- End of server IP -->
+        <!-- Server backup path -->
+        <div class="column is-half">
+            <div class="field">
+                <label class="label">Server backup path</label>
+                <input class="input" type="text" placeholder="Server backup path" value="'.$backup_server_backup_path.'" disabled>
+                <p class="help">This is the path where the backups are stored.</p>
+            </div>
+        </div>
+        <!-- End of server backup path -->
+        <!-- Server max backup size -->
+        <div class="column is-half">
+            <div class="field">
+                <label class="label">Server max backup size</label>
+                <input class="input" type="text" placeholder="Server max backup size" value="1TB" disabled>
+                <p class="help">This is the maximum size of the backups.</p>
+            </div>
+        </div>
+    </div>
+    <!-- End of server information -->
+    </div>
 <div class="column is-12">
 <div class="divider">Manage server</div>
 <!-- Manage server -->
@@ -71,22 +116,6 @@ function get_server_dashboard_info($server_id, $backup_server_ip, $backup_server
 <!-- Server storage -->
 '. $server_storage_locations .'
 <!-- End of server storage -->
-</div>
-<div class="column is-12">
-<div class="divider">Server information</div>
-<!-- Server information -->
-<div class="columns">
-    <div class="column">
-        <div class="field">
-            <label class="label">Server name</label>
-            <div class="control">
-                <input class="input" type="text" placeholder="Server name">
-            </div>
-            <p class="help">This is the name of the server.</p>
-        </div>
-    </div>
-</div>
-<!-- End of server information -->
 </div>
 </div>
 </div>';}

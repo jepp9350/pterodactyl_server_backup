@@ -1,5 +1,7 @@
 <div class="container">
     <div class="block">
+        <!-- Urgent notifications -->
+        <?php require './dashboard_urgent_notifications.php'; ?>
         <div class="columns mt-4">
             <div class="column">
                 <div class="box">
