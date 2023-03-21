@@ -3,7 +3,8 @@
 // curl command for install (for update replace i with u):
 // bash <(curl -d 'action=i&secret_token=SkctiyZrHdGuJVvQ8Y1w5ttU7EKN1ySeXWPYVhypGg398cOL' -X POST 172.16.13.33/api/)
 
-// updateactions example: [["backup db","/etc/mysql/dbfiles"],["backup data","/var/lib/pterodactyl/daemon-data"],["jeg ved det ikke","/var/lib/pterodactyl/daemon-data"]]
+// updateactions example:
+// [["backup db","/etc/mysql/dbfiles"],["backup data","/var/lib/pterodactyl/daemon-data"],["jeg ved det ikke","/var/lib/pterodactyl/daemon-data"]]
 
 // please put en timeout når man laver en ny action, så scriptet ikke kommer til at override noget
 
@@ -18,6 +19,12 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
+function doUpdateDiskInfo($conn, $secret_token, $diskinfo) {
+  $diskinfo = json_encode($diskinfo);
+  $sql = "UPDATE services SET diskinfo='$diskinfo' WHERE secret_token='$secret_token'";
+  $conn->query($sql);
+}
+
 function doLastSeen($conn, $secret_token) {
   $timestamp = date("Y-m-d H:i:s");
   $sql = "UPDATE services SET seen_date='$timestamp' WHERE secret_token='$secret_token'";
@@ -25,12 +32,8 @@ function doLastSeen($conn, $secret_token) {
 }
 
 function doUpdate($updateactions, $conn, $secret_token) {
-  $action = $updateactions[0][0];
-  $dir = $updateactions[0][1];
-
-  //var_dump($updateactions);
-  echo $action . ' dir: ' . $dir;
-
+  echo json_encode($updateactions[0]);
+  
   // remove the now finished/running task from the list of actions, so we can remove only that action from the db
   array_shift($updateactions); 
   $updateactions = json_encode($updateactions);
@@ -49,13 +52,16 @@ function doUpdate($updateactions, $conn, $secret_token) {
 function doInstall($displayname, $secret_token, $settings_install_url) {
     echo "clear \n";
     echo "echo \n";
+    echo "echo Downloading python file \n";
+    echo "mkdir /etc/pterodactyl-backup-service \n";
+    echo "wget " . $settings_install_url . "/files/server_refresh.py -O /etc/pterodactyl-backup-service/server_refresh.py \n";
+    echo "echo " . $secret_token . " > /etc/pterodactyl-backup-service/secret_token \n";
+    echo "clear \n";
+    echo "echo \n";
     echo "echo Installing cron.d file for Pterodactyl Server Backup Manager \n";
     echo "echo Service: " . $displayname . "\n";
-
     echo "echo '# /etc/cron.d/backupmanager: crontab entry for the Pterodactyl Server Backup Manager' > /etc/cron.d/backupmanager \n";
-    echo "echo 'SHELL=/bin/sh' >> /etc/cron.d/backupmanager \n";
-    echo "echo 'PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin' >> /etc/cron.d/backupmanager \n";
-    $cmd = 'curl -d "action=u&secret_token=' . $secret_token . '" -X POST ' . $settings_install_url . ' | bash';
+    $cmd = 'cd /etc/pterodactyl-backup-service && $(which python3) server_refresh.py';
     echo "echo '* * * * * root " . $cmd . "' >> /etc/cron.d/backupmanager \n";
 }
 
@@ -108,11 +114,15 @@ if ($ip_locked == 'true' AND $db_ipaddress != $client_ipadress) {
 
 // the request checks out, and we're ready to either serve the update/install script
 if ($action == 'u') {
+    // since it's the update action, we know that diskinfo is POSTed
+     $diskinfo = json_decode($_POST['diskinfo'], true);
+     doUpdateDiskInfo($conn, $secret_token, $diskinfo);
+
     // run the timestamp last seen function, duh
     doLastSeen($conn, $secret_token);
     // check if there are any actions, if not then it does nothing
     if ($updateactions == 'none') {
-      die('echo no action');
+      die('no action');
     }
     doUpdate($updateactions, $conn, $secret_token);
 
