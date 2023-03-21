@@ -44,6 +44,16 @@ if (isset($_GET["api_key"])) {
             require './dashboard/api/sync_backup_servers.php';
             exit();
             break;
+        case "backup_server_load_dashboard":
+            if (isset($_GET['backup_server_id'])) {
+                require './dashboard/api/backup_server_load_dashboard.php';
+                exit();
+            } else {
+                echo "Invalid, missing server_id!";
+                exit();
+            }
+            exit();
+            break;
         default:
             echo "Invalid API call! (".$action.") not found.";
             exit();
@@ -77,6 +87,7 @@ if (!isset($_SESSION['user'])) {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <script src="https://cdn.jsdelivr.net/npm/bulma-toast@2.4.2/dist/bulma-toast.min.js"></script>
+        <link rel="stylesheet" href="./css/bulma-tooltip.min.css">
         <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     </head>
     <body>
