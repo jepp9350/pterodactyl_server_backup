@@ -83,6 +83,7 @@ function get_server_dashboard_info($server_id, $backup_server_ip, $backup_server
                 <p class="help">This is the maximum size of the backups.</p>
             </div>
         </div>
+        <!-- End of server max backup size -->
     </div>
     <!-- End of server information -->
     </div>

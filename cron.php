@@ -31,17 +31,25 @@ $result = $conn->query($sql);
 $servers = array();
 // Loop through the backup servers and update the last seen date
 foreach ($result as $server_array) {
+    // Check if the ssh values are set
+    if (!isset($server_array["ssh_username"]) || !isset($server_array["ssh_password"]) || !isset($server_array["ssh_port"])) {
+        // If the ssh values are not set, skip the server
+        //echo "Skipping server ".$server_array["id"]." (".$server_array["displayname"].")... ";
+        // log the event to the server logs table
+        log_event("cron_error","Cron job skipped server - Missing SSH credentials.".$server_array["id"]." (".$server_array["displayname"].").",$server_array["id"],null);
+        continue;
+    }
     // Connect to the backup server, to check if it's online
     $ssh = new Net_SSH2($server_array["ipaddress"], $server_array["ssh_port"]);
     if (!$ssh->login($server_array["ssh_username"], $server_array["ssh_password"])) {
         // If the server is offline, skip it
-        echo "Skipping server ".$server_array["id"]." (".$server_array["displayname"].")... ";
+        //echo "Skipping server ".$server_array["id"]." (".$server_array["displayname"].")... ";
         // log the event to the server logs table
         log_event("cron_error","Cron job skipped server ".$server_array["id"]." (".$server_array["displayname"].").",$server_array["id"],null);
         continue;
     }
     // If the server is online, update the last seen date
-    echo "Updating server ".$server_array["id"]." (".$server_array["displayname"].")... ";
+    //echo "Updating server ".$server_array["id"]." (".$server_array["displayname"].")... ";
     $sql = "UPDATE backup_servers SET seen_date = '".$current_date."' WHERE id = '".$server_array["id"]."'";
     $result_update = $conn->query($sql);
     // log the event to the server logs table
