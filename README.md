@@ -1,10 +1,10 @@
 <a name="readme-top"></a>
 
-[![Contributors](https://img.shields.io/github/contributors/jepp9350/pterodactyl_server_backup.svg?style=for-the-badge)](https://github.com/jepp9350/graphs/contributors)
-[![Forks](https://img.shields.io/github/forks/jepp9350/pterodactyl_server_backup.svg?style=for-the-badge)](https://github.com/jepp9350/network/members)
-[![Stargazers](https://img.shields.io/github/stars/jepp9350/pterodactyl_server_backup.svg?style=for-the-badge)](https://github.com/jepp9350/stargazers)
-[![Issues](https://img.shields.io/github/issues/jepp9350/pterodactyl_server_backup.svg?style=for-the-badge)](https://github.com/jepp9350/issues)
-[![MIT License](https://img.shields.io/github/license/jepp9350/pterodactyl_server_backup.svg?style=for-the-badge)](https://github.com/jepp9350/blob/master/LICENSE)
+[![Contributors](https://img.shields.io/github/contributors/jepp9350/pterodactyl_server_backup.svg?style=for-the-badge)](https://github.com/jepp9350/pterodactyl_server_backup/graphs/contributors)
+[![Forks](https://img.shields.io/github/forks/jepp9350/pterodactyl_server_backup.svg?style=for-the-badge)](https://github.com/jepp9350/pterodactyl_server_backup/network/members)
+[![Stargazers](https://img.shields.io/github/stars/jepp9350/pterodactyl_server_backup.svg?style=for-the-badge)](https://github.com/jepp9350/pterodactyl_server_backup/stargazers)
+[![Issues](https://img.shields.io/github/issues/jepp9350/pterodactyl_server_backup.svg?style=for-the-badge)](https://github.com/jepp9350/pterodactyl_server_backup/issues)
+[![MIT License](https://img.shields.io/github/license/jepp9350/pterodactyl_server_backup.svg?style=for-the-badge)](https://github.com/jepp9350/pterodactyl_server_backup/blob/master/LICENSE)
 
 <br>
 <a href="https://github.com/jepp9350/pterodactyl_server_backup"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgPwWKpyDPdM7WB03ECW3aJy-0ll2EOdLJ0w&amp;usqp=CAU" alt="Logo" width="80" height="80"></a>
@@ -13,7 +13,7 @@
 </h3><br>
 A system to backup pterodactyl servers and databases with a Website UI running PHP as backend.
 
-<a href="https://github.com/jepp9350/issues">Report Bug</a> · <a href="https://github.com/jepp9350/issues">Request Feature</a>
+<a href="https://github.com/jepp9350/pterodactyl_server_backup/issues">Report Bug</a> · <a href="https://github.com/jepp9350/pterodactyl_server_backup/issues">Request Feature</a>
 
 <br>
 
@@ -79,7 +79,7 @@ git clone https://github.com/jepp9350/pterodactyl_server_backup.git
 * [ ] Feature 3
     * [ ] Nested Feature
 
-See the [open issues](https://github.com/jepp9350/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/jepp9350/pterodactyl_server_backup/issues) for a full list of proposed features (and known issues).
 
 (<a href="#readme-top">back to top</a>)
 
