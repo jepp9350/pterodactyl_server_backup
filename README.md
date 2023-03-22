@@ -17,6 +17,7 @@ A system to backup pterodactyl servers and databases with a Website UI running P
 <a href="https://github.com/jepp9350/issues">Report Bug</a> · <a href="https://github.com/jepp9350/issues">Request Feature</a>
 
 <br>
+
 ## About The Project
 
 [![Product Name Screen Shot](https://www.howtogeek.com/wp-content/uploads/csit/2020/07/2016da35.png?height=200p&trim=2,2,2,2)](https://github.com/jepp9350/pterodactyl_server_backup)
@@ -41,18 +42,21 @@ You will need a backup server, to store and fetch the backups.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-<br>
 * Web server
 
 PHP7/8???
+
 <br>
+
 * Service/pterodactyl server
 
 Python3.8, Requests, Psutil
 Cron
+
 <br>
+
 * Backup server
+
 mysql-client
 
 ### Installation
@@ -69,9 +73,8 @@ git clone https://github.com/jepp9350/pterodactyl_server_backup.git
 
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-*For more examples, please refer to the [Documentation](https://example.com)*
+
 
 (<a href="#readme-top">back to top</a>)
 
@@ -109,7 +112,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-Your Name - [@twitter\_handle](https://twitter.com/twitter_handle) \- email@email\_client\.com
+<!-- Your Name - [@twitter\_handle](https://twitter.com/twitter_handle) \- email@email\_client\.com -->
 
 Project Link: [https://github.com/jepp9350/pterodactyl\_server\_backup](https://github.com/jepp9350/pterodactyl_server_backup)
 
