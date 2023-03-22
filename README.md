@@ -11,13 +11,11 @@
 
 <h3 align="center">Pterodactyl Server Backup Manager
 </h3><br>
-<br>
 A system to backup pterodactyl servers and databases with a Website UI running PHP as backend.
 
 <a href="https://github.com/jepp9350/issues">Report Bug</a> · <a href="https://github.com/jepp9350/issues">Request Feature</a>
 
 <br>
-
 ## About The Project
 
 [![Product Name Screen Shot](https://www.howtogeek.com/wp-content/uploads/csit/2020/07/2016da35.png?height=200p&trim=2,2,2,2)](https://github.com/jepp9350/pterodactyl_server_backup)
@@ -47,14 +45,12 @@ You will need a backup server, to store and fetch the backups.
 PHP7/8???
 
 <br>
-
 * Service/pterodactyl server
 
 Python3.8, Requests, Psutil
 Cron
 
 <br>
-
 * Backup server
 
 mysql-client
@@ -72,9 +68,6 @@ git clone https://github.com/jepp9350/pterodactyl_server_backup.git
 (<a href="#readme-top">back to top</a>)
 
 ## Usage
-
-
-
 
 (<a href="#readme-top">back to top</a>)
 
@@ -106,13 +99,11 @@ Don't forget to give the project a star! Thanks again!
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the [MIT License](https://github.com/jepp9350/pterodactyl_server_backup/blob/development/LICENSE). See `LICENSE` for more information.
 
 (<a href="#readme-top">back to top</a>)
 
-## Contact
-
-<!-- Your Name - [@twitter\_handle](https://twitter.com/twitter_handle) \- email@email\_client\.com -->
+#
 
 Project Link: [https://github.com/jepp9350/pterodactyl\_server\_backup](https://github.com/jepp9350/pterodactyl_server_backup)
 
