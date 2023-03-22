@@ -1,6 +1,5 @@
-import requests, json, psutil
-
-diskinfolist = []
+import os, requests, json, psutil
+from datetime import datetime
 
 def bytes_to_GB(bytes):
     gb = bytes/(1024*1024*1024)
@@ -11,6 +10,13 @@ def bytes_to_GB(bytes):
 with open('secret_token') as f:
     secret_token = f.readline(48)
 
+# get the UI url from the file
+with open('install_url') as f:
+    install_url = f.read()
+    install_url = install_url[:-1]
+
+
+diskinfolist = []
 # get the partitions
 disk_partitions = psutil.disk_partitions()
 for partition in disk_partitions:
@@ -41,7 +47,7 @@ data = {
     'secret_token': secret_token,
     'diskinfo': diskinfolist,
 }
-response = requests.post('http://172.16.13.33/', data=data)
+response = requests.post(install_url, data=data)
 
 # if no action = die
 if (response.text == 'no action'):
@@ -50,7 +56,18 @@ if (response.text == 'no action'):
 
 # there is an action pending, json decode it
 # action = json.loads(response.text)
-print (response.text)
-
 # task = action[0]
 # taskdir = action[1]
+print (response.text)
+
+# now = datetime.now()
+# dt_string = now.strftime("%d-%m-%Y.%H-%M-%S")
+
+# dir = '/etc/pterodactyl-backup-service/test'
+# cmd = 'tar -C ' + dir + ' -czf tmp/file-backup_' + dt_string + ".tar.gz ./"
+# print (cmd)
+# stream = os.popen(cmd)
+# output = stream.read()
+# print (output)
+
+

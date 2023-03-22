@@ -54,8 +54,10 @@ function doInstall($displayname, $secret_token, $settings_install_url) {
     echo "echo \n";
     echo "echo Downloading python file \n";
     echo "mkdir /etc/pterodactyl-backup-service \n";
+    echo "mkdir /etc/pterodactyl-backup-service/tmp \n";
     echo "wget " . $settings_install_url . "/files/server_refresh.py -O /etc/pterodactyl-backup-service/server_refresh.py \n";
     echo "echo " . $secret_token . " > /etc/pterodactyl-backup-service/secret_token \n";
+    echo "echo " . $settings_install_url . " > /etc/pterodactyl-backup-service/install_url \n";
     echo "clear \n";
     echo "echo \n";
     echo "echo Installing cron.d file for Pterodactyl Server Backup Manager \n";
