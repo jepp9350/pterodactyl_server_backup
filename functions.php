@@ -182,8 +182,79 @@ function check_database_connection($action, $database){
                                 echo "Couldn't create backup_servers table, error: ".$e;
                             }
                         }
-                        $conn->close();
-                        return 200;
+                        // Checking backup_plans table.
+                        try {
+                            // sql to create "backup_plans" table
+                            $sql = "CREATE TABLE IF NOT EXISTS backup_plans (
+                                id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                                displayname VARCHAR(255) NOT NULL,
+                                backup_server VARCHAR(255) DEFAULT NULL,
+                                backup_path VARCHAR(255) DEFAULT NULL,
+                                backup_frequency VARCHAR(255) DEFAULT NULL,
+                                backup_time VARCHAR(255) DEFAULT NULL,
+                                backup_retention VARCHAR(255) DEFAULT NULL,
+                                backup_type VARCHAR(255) DEFAULT NULL,
+                                mysql_host VARCHAR(255) DEFAULT NULL,
+                                mysql_username VARCHAR(255) DEFAULT NULL,
+                                mysql_password VARCHAR(255) DEFAULT NULL,
+                                mysql_database VARCHAR(255) DEFAULT NULL,
+                                mysql_port VARCHAR(255) DEFAULT NULL,
+                                next_run_date VARCHAR(255) DEFAULT NULL,
+                                backup_status VARCHAR(255) DEFAULT NULL,
+                                backup_last_run VARCHAR(255) DEFAULT NULL,
+                                backup_last_run_status VARCHAR(255) DEFAULT NULL,
+                                backup_last_run_output VARCHAR(255) DEFAULT NULL,
+                                service_id VARCHAR(255) DEFAULT NULL,
+                                reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                )";
+                                
+                                if ($conn->query($sql) === TRUE) {
+                                #echo "Table backup_plans created successfully";
+                                } else {
+                                echo "Error creating table: " . $conn->error;
+                                }
+                            }
+                            //catch exception
+                            catch(Exception $e) {
+                                if (strpos($e,"already exists")) {
+                                    echo "backup_plans table already exists.";
+                                } else {
+                                    echo "Couldn't create backup_plans table, error: ".$e;
+                                }
+                            }
+                            // Checking saved backups table.
+                            try {
+                                // sql to create "saved_backups" table
+                                $sql = "CREATE TABLE IF NOT EXISTS saved_backups (
+                                    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                                    backup_plan VARCHAR(255) DEFAULT NULL,
+                                    service_id VARCHAR(255) DEFAULT NULL,
+                                    backup_server VARCHAR(255) DEFAULT NULL,
+                                    backup_path VARCHAR(255) DEFAULT NULL,
+                                    backup_type VARCHAR(255) DEFAULT NULL,
+                                    backup_date VARCHAR(255) DEFAULT NULL,
+                                    backup_size VARCHAR(255) DEFAULT NULL,
+                                    backup_status VARCHAR(255) DEFAULT NULL,
+                                    backup_output VARCHAR(255) DEFAULT NULL,
+                                    reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                    )";
+                                    
+                                    if ($conn->query($sql) === TRUE) {
+                                    #echo "Table saved_backups created successfully";
+                                    } else {
+                                    echo "Error creating table: " . $conn->error;
+                                    }
+                                }
+                                //catch exception
+                                catch(Exception $e) {
+                                    if (strpos($e,"already exists")) {
+                                        echo "saved_backups table already exists.";
+                                    } else {
+                                        echo "Couldn't create saved_backups table, error: ".$e;
+                                    }
+                                }
+                                       
+
                         }
                 }
                 //catch exception
@@ -194,6 +265,8 @@ function check_database_connection($action, $database){
             } else {
                 return "db_not_set.";
             }
+            $conn->close();
+            return 200;
             break;
         default:
             return("Invalid action for check_database_connection function!");
@@ -209,7 +282,12 @@ function log_event($event, $description, $service, $user) {
     if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
     }
-
+    // Secure the input
+    $event = mysqli_real_escape_string($conn, $event);
+    $description = mysqli_real_escape_string($conn, $description);
+    $service = mysqli_real_escape_string($conn, $service);
+    $user = mysqli_real_escape_string($conn, $user);
+    // Insert the data
     $sql = "INSERT INTO server_logs (event, description, service, user)
     VALUES ('$event', '$description', '$service', '$user')";
 

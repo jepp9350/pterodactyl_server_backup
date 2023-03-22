@@ -317,73 +317,32 @@
       <button class="delete" aria-label="close"></button>
     </header>
     <section id="server_overview_manage_body" class="modal-card-body">
-        <!-- Content here -->
-                <div class="title is-4" id="manage_backup_server_title">none selected</div>
-                <div class="subtitle is-6" id="manage_backup_server_subtitle">ID: '+backup_servers_array[backup_server_array][0]+' IP: '+backup_servers_array[backup_server_array][3]+' Last seen: '+timeSince(backup_servers_array[backup_server_array][4])+' Reg: '+backup_servers_array[backup_server_array][5]+'</div>
-                <div class="columns is-multiline control_server_dashboard" style="display:'+is_displayed+';" id="server_manage_id_'+backup_servers_array[backup_server_array][0]+'">
-                <div class="column is-12">
-                    <div class="divider">Manage server</div>
-                    <!-- Manage server -->
-                    <div class="buttons">
-                        <button class="button is-small is-info">
-                        <span class="icon is-small">
-                            <i class="fas fa-play"></i>
-                        </span>
-                        <span>Start</span>
-                        </button>
-                        <button class="button is-small is-warning">
-                            <span class="icon is-small">
-                                <i class="fas fa-pause"></i>
-                            </span>
-                            <span>Pause</span>
-                        </button>
-                        <button class="button is-small is-danger">
-                            <span class="icon is-small">
-                                <i class="fas fa-stop"></i>
-                            </span>
-                            <span>Stop</span>
-                        </button>
-                    </div>
-                    <!-- End of manage server -->
-                </div>
-                <div class="column is-12">
-                    <div class="divider">Server storage</div>
-                    <!-- Server storage -->
-                    <div class="columns">
-                        <div class="column">
-                            <p class="is-6">Backup storage: 60%</p>
-                            <progress class="progress is-success" value="60" max="100">60%</progress>
-                        </div>
-                        <div class="column">
-                            <p class="is-6">Total storage: 60%</p>
-                            <progress class="progress is-warning" value="60" max="100">60%</progress>
-                        </div>
-                    </div>
-                    <!-- End of server storage -->
-                </div>
-                <div class="column is-12">
-                    <div class="divider">Server information</div>
-                    <!-- Server information -->
-                    <div class="columns">
-                        <div class="column">
-                            <div class="field">
-                                <label class="label">Server name</label>
-                                <div class="control">
-                                    <input class="input" type="text" placeholder="Server name">
-                                </div>
-                                <p class="help">This is the name of the server.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End of server information -->
-                    </div>
-                </div>
+        <!-- Content will appear here -->
     </section>
     <footer class="modal-card-foot">
       <button class="button is-success">Save changes</button>
       <button class="button">Cancel</button>
     </footer>
 </div>
+</div>
+<!-- End of manage server modal -->
+<!-- Backup server backups modal -->
+<div class="modal" id="server_backups_list">
+<div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Viewing backups</p>
+      <button class="delete" aria-label="close"></button>
+    </header>
+    <section id="server_backups_list_body" class="modal-card-body">
+        <!-- Content will appear here -->
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-success">Save changes</button>
+      <button class="button">Cancel</button>
+    </footer>
+</div>
+<!-- End of backup server backups modal -->
 <!-- Insert javascript -->
 <!-- Create a new server => Modal => JS -->
 <script src="./js/bulma.modal.js"></script>
@@ -393,3 +352,5 @@
 <script src="./js/dashboard_background_sync.js"></script>
 <!-- Dashboard => Background => Notifications => JS -->
 <script src="./js/notifications_background.js"></script>
+<!-- Dashboard => Background => backup servers => JS -->
+<script src="./js/manage_backup_servers.js"></script>

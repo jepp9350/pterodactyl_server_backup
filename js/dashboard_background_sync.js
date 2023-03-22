@@ -212,15 +212,15 @@ function backup_server_sync(){
             </div>\
                 <div class="list-item-controls">\
                 <div class="buttons is-right">\
-                    <button class="button">\
+                    <button onclick="toggle_backup_server_manager('+backup_servers_array[backup_server_array][0]+')" class="button">\
                     <span class="icon is-small">\
                         <i class="fas fa-edit"></i>\
                     </span>\
                     <span>Edit</span>\
                     </button>\
-                    <button onclick="toggle_backup_server_manager('+backup_servers_array[backup_server_array][0]+')" class="button">\
+                    <button onclick="toggle_backup_itemized_list('+backup_servers_array[backup_server_array][0]+')" class="button">\
                     <span class="icon is-small">\
-                        <i class="fas fa-ellipsis-h"></i>\
+                        <i class="fa-solid fa-list"></i>\
                     </span>\
                     </button>\
                 </div>\
@@ -268,6 +268,32 @@ function toggle_backup_server_manager(backup_server_id) {
     } else {
         document.getElementById('server_manage_id_'+backup_server_id).style.display = "none";
     }*/
+}
+// Javascript => Backend => Toggle the backups list. (itemized) and get the backups.
+function toggle_backup_itemized_list(backup_server_id) {
+    // toggle it
+    console.log("click detected");
+    modal = document.getElementById('server_backups_list');
+    // check if the modal is active.
+    if (modal.classList.contains('is-active') === true) {
+        // if it is active, close it.
+        modal.classList.remove('is-active');
+    } else {
+        // if it is not active, open it.
+
+        document.getElementById('server_backups_list_body').innerHTML = '<p>Connecting to server...</p><progress class="progress is-small is-primary" max="100">15%</progress>';
+        modal.classList.add('is-active');
+    }
+    // Get the server information.
+    // Create an XMLHttpRequest object
+    const backup_server_backups_conn = new XMLHttpRequest();
+    backup_server_backups_conn.onload = function() {
+        // Here you can use the Data
+        document.getElementById('server_backups_list_body').innerHTML =this.responseText;
+    // Send a request
+    }
+    backup_server_backups_conn.open("GET", "./index.php?api_key=none&action=backup_server_load_backups_overview&backup_server_id="+backup_server_id);
+    backup_server_backups_conn.send();
 }
 // Javascript => Backend => Refresh notifications.
 function notification_sync(){
@@ -340,6 +366,13 @@ function show_notification(type,message){
         case 'error':
             bulmaToast.toast({ message: message, position: 'bottom-right', type: 'is-warning', opacity: 0.8, duration: 5000 });
             break;
+        default:
+            if (type.length > 0) {
+                color = type;
+            } else {
+                color = 'primary';
+            }
+            bulmaToast.toast({ message: message, position: 'bottom-right', type: 'is-'+color+'', opacity: 0.8, duration: 5000 });
     }
 }
 everySecondFunction();
@@ -366,4 +399,23 @@ function show_modal_backup_server(id) {
             break;
 
     }
+}
+// Javascript => Backend => Download backup.
+function download_backup(backup_id) {
+    // Create an XMLHttpRequest object
+    const download_backup_conn = new XMLHttpRequest();
+    // Define a callback function
+    download_backup_conn.onload = function() {
+        // Here you can use the Data
+        //console.log(this.responseText);
+        //console.log(this.responseText);
+        if (this.responseText == "error") {
+            show_notification('error','An error occured while downloading the backup.');
+        } else {
+            show_notification('success','Backup downloaded.');
+        }
+    }
+    // Send a request
+    download_backup_conn.open("GET", "./index.php?api_key=none&action=download_backup&backup_id="+backup_id);
+    download_backup_conn.send();
 }

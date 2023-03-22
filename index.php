@@ -54,6 +54,26 @@ if (isset($_GET["api_key"])) {
             }
             exit();
             break;
+        case "run_backup_job":
+            if (isset($_GET['backup_plan_id'])) {
+                require './dashboard/api/run_backup_job.php';
+                exit();
+            } else {
+                echo "Invalid, missing backup_plan_id!";
+                exit();
+            }
+            exit();
+            break;
+        case "backup_server_load_backups_overview":
+            if (isset($_GET['backup_server_id'])) {
+                require './dashboard/api/backup_server_load_backups_overview.php';
+                exit();
+            } else {
+                echo "Invalid, missing server_id!";
+                exit();
+            }
+            exit();
+            break;
         default:
             echo "Invalid API call! (".$action.") not found.";
             exit();

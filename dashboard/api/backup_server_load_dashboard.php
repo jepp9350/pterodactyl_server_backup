@@ -90,7 +90,7 @@ function get_server_dashboard_info($server_id, $backup_server_ip, $backup_server
 <div class="column is-12">
 <div class="divider">Manage server</div>
 <!-- Manage server -->
-<div class="buttons">
+<div class="buttons is-centered">
     <button class="button is-small is-info">
     <span class="icon is-small">
         <i class="fas fa-play"></i>
@@ -111,7 +111,10 @@ function get_server_dashboard_info($server_id, $backup_server_ip, $backup_server
     </button>
 </div>
 <!-- End of manage server -->
-</div>
+<!-- Backup plans -->
+<div class="divider">Backup plans</div>
+'. get_backup_plans($server_id) .'
+<!-- End of backup plans -->
 <div class="column is-12">
 <div class="divider">Server storage</div>
 <!-- Server storage -->
@@ -122,6 +125,147 @@ function get_server_dashboard_info($server_id, $backup_server_ip, $backup_server
 </div>';}
 ?>
 <?php
+// Function to get the servers backup plans
+function get_backup_plans($server_id) {
+    // Include the database connection
+    include('./database.php');
+    // Create database connection
+    $conn = new mysqli($database_host, $database_user, $database_user_password, $database_name);
+    // Create the query
+    $sql = "SELECT * FROM backup_plans WHERE backup_server = '$server_id'";
+    // Run the query
+    $result = $conn->query($sql);
+    $final_list = '';
+    $final_list .= '<div class="columns is-multiline">';
+    // If there's more than 0 results
+    if ($result->num_rows > 0) {
+        // output data of each row
+        while($row = $result->fetch_assoc()) {
+            // Store the data in variables
+            $backup_plan_id = $row["id"];
+            $backup_plan_name = $row["displayname"];
+            $backup_plan_backup_server = $row["backup_server"];
+            $backup_plan_backup_path = $row["backup_path"];
+            $backup_plan_backup_frequency = $row["backup_frequency"];
+            $backup_plan_backup_retention = $row["backup_retention"];
+            $backup_plan_backup_status = $row["backup_status"];
+            $backup_plan_backup_type = $row["backup_type"];
+            $service_id = $row["service_id"];
+            // Determine the backup type
+            if ($backup_plan_backup_type == "mysql") {
+                $backup_plan_backup_type = "MySQL";
+            } elseif ($backup_plan_backup_type == "files") {
+                $backup_plan_backup_type = "Files";
+            } else {
+                $backup_plan_backup_type = "Unknown";
+            }
+            // Determine the backup frequency
+            if ($backup_plan_backup_frequency == "daily") {
+                $backup_plan_backup_frequency = "Daily";
+            } elseif ($backup_plan_backup_frequency == "weekly") {
+                $backup_plan_backup_frequency = "Weekly";
+            } elseif ($backup_plan_backup_frequency == "monthly") {
+                $backup_plan_backup_frequency = "Monthly";
+            } else {
+                $backup_plan_backup_frequency = "Unknown";
+            }
+            // Determine the service from the service ID
+            // Create the query
+            $sql = "SELECT * FROM services WHERE id = '$service_id'";
+            // Run the query
+            $result = $conn->query($sql);
+            // If there's more than 0 results
+            if ($result->num_rows > 0) {
+                // output data of each row
+                while($row = $result->fetch_assoc()) {
+                    // Store the data in variables
+                    $service_name = $row["displayname"];
+                }
+            }
+            
+            
+            // Check if the backup plan is enabled
+            if ($backup_plan_backup_status == 1) {
+                $backup_plan_backup_status = '<span class="tag is-success">Enabled</span>';
+            } else {
+                $backup_plan_backup_status = '<span class="tag is-danger">Disabled</span>';
+            }
+            // Create the HTML
+            $final_list .= '
+            <div class="column is-half">
+                <div class="box">
+                <!-- Backup plan name & status tag -->
+                <span class="title is-6">'.$backup_plan_name.'</span> '.$backup_plan_backup_status.'
+                <!-- End of backup plan name -->
+                <!-- Backup plan information -->
+                <div class="divider">Details</div>
+                <p><strong>Backup path:</strong> '.$backup_plan_backup_path.'</p>
+                <p><strong>Backup frequency:</strong> '.$backup_plan_backup_frequency.'</p>
+                <p><strong>Service:</strong> '.$service_name.'</p>
+                <p><strong>Backup type:</strong> '.$backup_plan_backup_type.'</p>
+                <div class="divider">Actions</div>
+                <div class="buttons">
+                    <a href="./backup_plan.php?id='.$backup_plan_id.'" class="button is-small is-info">
+                    <span class="icon is-small">
+                        <i class="fas fa-edit"></i>
+                    </span>
+                    <span>Edit (...)</span>
+                    </a>
+                    <a onclick="run_backup('.$backup_plan_id.')" class="button is-small is-success">
+                    <span class="icon is-small">
+                        <i class="fas fa-play"></i>
+                    </span>
+                    <span>Run</span>
+                    </a>
+                    <a href="./backup_plan.php?id='.$backup_plan_id.'" class="button is-small is-danger">
+                    <span class="icon is-small">
+                        <i class="fas fa-trash"></i>
+                    </span>
+                    <span>Delete (...)</span>
+                    </a>
+                <!-- End of backup plan information -->
+                </div>
+            </div>
+            </div>';
+
+        }
+        // Create the HTML for creating a new backup plan
+        $final_list .= '
+        <div class="column is-half">
+            <div class="box">
+                <!-- Create a new backup plan - title -->
+                <span class="title is-6">Create a new backup plan</span>
+                <!-- End of create a new backup plan - title -->
+                <!-- Create a new backup plan - information -->
+                <div class="divider">New plan</div>
+                <p>Create a new backup plan for this server.</p>
+                <p>Backup plans are used to backup your data to a remote location.</p>
+                <div class="divider">Actions</div>
+                <div class="buttons">
+                    <a href="./backup_plan.php" class="button is-small is-success">
+                    <span class="icon is-small">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                    <span>Create (TODO)</span>
+                    </a>
+                </div>
+                <!-- End of create a new backup plan - information -->
+            </div>
+            </div>';
+    } else {
+        // If there's no results echo a notification
+        $final_list .= '<div class="notification is-warning">
+        <button class="delete"></button>
+        <strong>No backup plans found</strong> - Consider creating a backup plan for this server, so you can backup your data.
+      </div>';
+    }
+    // Close the connection
+    $conn->close();
+    // Close the div
+    $final_list .= '</div>';
+    // Return the HTML
+    return $final_list;
+}
 // Function to get the servers storage usage
 function get_server_storage($host, $user, $pass, $port) {
     set_include_path(get_include_path() . PATH_SEPARATOR . 'phpseclib');
@@ -194,7 +338,7 @@ function get_server_storage($host, $user, $pass, $port) {
                     }
                 }
                     // Check if the file system is tmpfs, if so, don't print it
-                if ($column_variables['Filesystem'] == "tmpfs" OR $column_variables['Filesystem'] == "udev" OR $column_variables['Mounted_on'] == "Undefined.") {
+                if ($column_variables['Mounted_on'] == "/boot" OR $column_variables['Filesystem'] == "tmpfs" OR $column_variables['Filesystem'] == "udev" OR $column_variables['Mounted_on'] == "Undefined.") {
                     // Don't print the column
                 } else {
                     // Create the column content - call the function to create the column

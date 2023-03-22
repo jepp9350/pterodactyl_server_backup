@@ -59,4 +59,87 @@ foreach ($result as $server_array) {
 $conn->close();
 // log the event to the server logs table
 log_event("cron","Cron job finished.",null,null);
+function check_for_backup_jobs() {
+    // Function to check if a backup should be created
+    // Get the database settings
+    require './database.php';
+    // Create connection
+    $conn = new mysqli($database_host, $database_user, $database_user_password, $database_name);
+    // Check connection for errors
+    if ($conn->connect_error) {
+        echo "Failed to connect to database.";
+        return 500;
+    }
+    // Get the current date
+    $current_date = date("Y-m-d H:i:s");
+    // Get the backup jobs
+    $sql = "SELECT * FROM backup_plans WHERE next_run_date <= '".$current_date."'";
+    // Send the query to the database
+    $result = $conn->query($sql);
+    // Format the result as an array
+    $backup_jobs = $result->fetch_assoc();
+    // if result array is larger than 0, continue
+    if ($result > 0) {
+        // Output data of each row
+        while($row = $result->fetch_assoc()) {
+            // Get the backup plan
+            $backup_plan = $row;
+            echo 'Backup plan: '.$backup_plan["displayname"];
+            }
+    } else {
+        // If there's no pending backups, log the event
+        log_event("cron","No pending backups.",null,null);
+        }
+    // Close the database connection
+    $conn->close();
+}
+function backup_database($service_id, $backup_server_id, $backup_plan_id) {
+    // Get the database settings
+    require './database.php';
+    // Create connection
+    $conn = new mysqli($database_host, $database_user, $database_user_password, $database_name);
+    // Check connection for errors
+    if ($conn->connect_error) {
+        echo "Failed to connect to database.";
+        return 500;
+    }
+    // Get the backup plan
+    $sql = "SELECT * FROM backup_plans WHERE id = '".$backup_plan_id."'";
+    // Send the query to the database
+    $result = $conn->query($sql);
+    // Format the result as an array
+    $backup_plan = $result->fetch_assoc();
+    // if result array is larger than 0, continue
+    if ($result->num_rows > 0) {
+        // Output data of each row
+        while($row = $result->fetch_assoc()) {
+            // Get the backup plan
+            $backup_plan = $row;
+            echo 'Backup plan: '.$backup_plan["displayname"];
+            }
+        } else {
+            // If the backup plan does not exist, return an error
+            echo "Backup plan does not exist.";
+            return 500;
+        }
+    // Get the backup server
+    $sql = "SELECT * FROM backup_servers WHERE id = '".$backup_server_id."'";
+    // Send the query to the database
+    $result = $conn->query($sql);
+    // Format the result as an array
+    $backup_server = $result->fetch_assoc();
+    // if result array is larger than 0, continue
+    if ($result->num_rows > 0) {
+        // Output data of each row
+        while($row = $result->fetch_assoc()) {
+            // Get the backup server
+            $backup_server = $row;
+            echo 'Backup server: '.$backup_server["displayname"];
+            }
+        } else {
+            // If the backup server does not exist, return an error
+            echo "Backup server does not exist.";
+            return 500;
+        }
+}
 ?>
