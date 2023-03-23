@@ -1,10 +1,8 @@
 <?php
 
 // curl command for install (for update replace i with u):
-// bash <(curl -d 'action=i&secret_token=SkctiyZrHdGuJVvQ8Y1w5ttU7EKN1ySeXWPYVhypGg398cOL' -X POST 172.16.13.33/api/)
+// bash <(curl -d 'action=i&secret_token=SkctiyZrHdGuJVvQ8Y1w5ttU7EKN1ySeXWPYVhypGg398cOL' -X POST 172.16.13.33)
 
-// updateactions example:
-// [["backup db","/etc/mysql/dbfiles"],["backup data","/var/lib/pterodactyl/daemon-data"],["jeg ved det ikke","/var/lib/pterodactyl/daemon-data"]]
 
 require_once './database.php';
 
@@ -61,7 +59,7 @@ function doInstall($displayname, $secret_token, $settings_install_url) {
     echo "echo Installing cron.d file for Pterodactyl Server Backup Manager \n";
     echo "echo Service: " . $displayname . "\n";
     echo "echo '# /etc/cron.d/backupmanager: crontab entry for the Pterodactyl Server Backup Manager' > /etc/cron.d/backupmanager \n";
-    $cmd = 'cd /etc/pterodactyl-backup-service && $(which python3) server_refresh.py';
+    $cmd = 'cd /etc/pterodactyl-backup-service && $(which python3) server_refresh.py > log.txt';
     echo "echo '* * * * * root " . $cmd . "' >> /etc/cron.d/backupmanager \n";
 }
 
@@ -145,6 +143,7 @@ if ($action == 'fetchAction') {
 
 } elseif ($action == 'uploadBackup') {
   $backupInfo = json_decode($_POST['backup_info'], true);
+  
   $backup_plan_id = htmlspecialchars($backupInfo[0]);
   $service_id = htmlspecialchars($backupInfo[1]);
   $backup_server_id = htmlspecialchars($backupInfo[2]);
