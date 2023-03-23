@@ -20,26 +20,20 @@ def bytes_to_GB(bytes):
     return gb
 
 def updateDatabase(backup_plan_id, service_id, backup_server_id, files_backup_path, backupType, date_and_time, backup_size, backup_status, logOutput):
-    if (backup_status != 'succes'):
-        print (backup_plan_id)
-        print (service_id)
-        print (backup_server_id)
+    backupInfo = [backup_plan_id, service_id, backup_server_id, files_backup_path, backupType, date_and_time, backup_size, backup_status, logOutput[:-1]]
+    # print (backupInfo)
+    backup_info = json.dumps(backupInfo)
+    data = {
+    'action': 'uploadBackup',
+    'secret_token': secret_token,
+    'backup_info': backup_info,
+    }
+    response = requests.post(install_url, data=data)
 
-        print (backupType)
-        print (date_and_time)
-        print (backup_status)
-        print (backup_size)
-        print (logOutput)
+    if (response.text == 'succes'):
+        print ('successfully updated db')
     else:
-        print (backup_plan_id)
-        print (service_id)
-        print (backup_server_id)
-
-        print (files_backup_path)
-        print (backupType)
-        print (date_and_time)
-        print (backup_size)
-        print (backup_status)
+        print (response.text)        
     
 
 
@@ -82,7 +76,7 @@ for partition in disk_partitions:
 diskinfolist = json.dumps(diskinfolist)
 
 data = {
-    'action': 'u',
+    'action': 'fetchAction',
     'secret_token': secret_token,
     'diskinfo': diskinfolist,
 }
@@ -114,13 +108,14 @@ date_and_time = now.strftime("%Y-%m-%d-%H-%M-%S") # for database
 
 # the shell tar command to take the backup and temporarily store it in the tmp dir
 dir = '/etc/pterodactyl-backup-service/test'
-cmd = 'tar -v -C ' + dir + ' -czf tmp/file-backup_' + backupTimestamp + '.tar.gz .s/'
+cmd = 'tar -v -C ' + dir + ' -czf tmp/file-backup_' + backupTimestamp + '.tar.gz ./'
 # print (cmd)
 result = subprocess.run([cmd], capture_output=True, text=True, shell=True, check=False)
 if (result.stderr):
     # the tar command failed, print the error msg, and delete the empty tar.gz file
     print(result.stderr)
-    updateDatabase(backup_plan_id, service_id, backup_server_id, '', backupType, date_and_time, '', 'failed', result.stderr)
+    backup_status = 'failed'
+    updateDatabase(backup_plan_id, service_id, backup_server_id, '', backupType, date_and_time, '', backup_status, result.stderr)
     subprocess.run(['rm tmp/file-backup_' + backupTimestamp + '.tar.gz'], capture_output=True, text=True, shell=True, check=False)
     exit()
 else:

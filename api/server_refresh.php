@@ -113,7 +113,7 @@ if ($ip_locked == 'true' AND $db_ipaddress != $client_ipadress) {
 }
 
 // the request checks out, and we're ready to either serve the update/install script
-if ($action == 'u') {
+if ($action == 'fetchAction') {
     // since it's the update action, we know that diskinfo is POSTed
      $diskinfo = json_decode($_POST['diskinfo'], true);
      doUpdateDiskInfo($conn, $secret_token, $diskinfo);
@@ -141,9 +141,29 @@ if ($action == 'u') {
       }
     } else {
       echo("$client_ipadress is not a valid IP address");
-    }
+    }  
+
+} elseif ($action == 'uploadBackup') {
+  $backupInfo = json_decode($_POST['backup_info'], true);
+  $backup_plan_id = htmlspecialchars($backupInfo[0]);
+  $service_id = htmlspecialchars($backupInfo[1]);
+  $backup_server_id = htmlspecialchars($backupInfo[2]);
+  $backup_path = htmlspecialchars($backupInfo[3]);
+  $backup_type = htmlspecialchars($backupInfo[4]);
+  $backup_date = htmlspecialchars($backupInfo[5]);
+  $backup_size = htmlspecialchars($backupInfo[6]);
+  $backup_status = htmlspecialchars($backupInfo[7]);
+  $backup_output = htmlspecialchars($backupInfo[8]);
+
+  $sql = "INSERT INTO saved_backups (backup_plan, service_id, backup_server, backup_path, backup_type, backup_date, backup_size, backup_status, backup_output) VALUES ('$backup_plan_id', '$service_id', '$backup_server_id', '$backup_path', '$backup_type', '$backup_date', '$backup_size', '$backup_status', '$backup_output')";
+  // Send the query to the database
+  if ($conn->query($sql) === TRUE) {
+    echo 'succes';
+  } else {
+    echo $conn->error;
+  }
 } else {
-  // no known access specified
+  // no known action specified
    die('Unknown action');
 }
 
