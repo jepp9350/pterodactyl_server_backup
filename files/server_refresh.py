@@ -32,7 +32,7 @@ for partition in disk_partitions:
 
     diskinfo = {
         "diskPart": partition.device,
-        "diskMountpoint": partition.device,
+        "diskMountpoint": partition.mountpoint,
         "diskTotalSpace": diskTotalSpace,
         "diskFreeSpace": diskFreeSpace,
         "diskUsedSpace": diskUsedSpace,

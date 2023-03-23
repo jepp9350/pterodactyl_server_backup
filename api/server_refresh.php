@@ -6,8 +6,6 @@
 // updateactions example:
 // [["backup db","/etc/mysql/dbfiles"],["backup data","/var/lib/pterodactyl/daemon-data"],["jeg ved det ikke","/var/lib/pterodactyl/daemon-data"]]
 
-// please put en timeout når man laver en ny action, så scriptet ikke kommer til at override noget
-
 require_once './database.php';
 
 // get the FQDN var
