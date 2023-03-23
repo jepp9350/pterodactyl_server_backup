@@ -49,8 +49,9 @@ PHP7/8???
 * Service/pterodactyl server
 
 Python3.8, Requests, Psutil
-Tar
-Cron
+<br>
+Tar<br>
+Cron<br>
 Sshpass
 
 <br>
