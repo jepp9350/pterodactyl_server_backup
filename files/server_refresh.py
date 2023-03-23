@@ -1,10 +1,47 @@
-import os, requests, json, psutil
+import subprocess, os, requests, json, psutil
 from datetime import datetime
+
+#   vars in action task
+# backupType = 'files'
+# sshBackupDir = '/var/lib/pterodactyl/daemon-data/' # vigtigt med sidste '/'
+# sshUser
+# sshPassword
+# sshAdress
+# sshPort
+# sshBackupDir
+# backup_plan_id
+# service_id
+# backup_server_id
+
 
 def bytes_to_GB(bytes):
     gb = bytes/(1024*1024*1024)
     gb = round(gb, 2)
     return gb
+
+def updateDatabase(backup_plan_id, service_id, backup_server_id, files_backup_path, backupType, date_and_time, backup_size, backup_status, logOutput):
+    if (backup_status != 'succes'):
+        print (backup_plan_id)
+        print (service_id)
+        print (backup_server_id)
+
+        print (backupType)
+        print (date_and_time)
+        print (backup_status)
+        print (backup_size)
+        print (logOutput)
+    else:
+        print (backup_plan_id)
+        print (service_id)
+        print (backup_server_id)
+
+        print (files_backup_path)
+        print (backupType)
+        print (date_and_time)
+        print (backup_size)
+        print (backup_status)
+    
+
 
 # get the secret token from the file
 with open('secret_token') as f:
@@ -38,8 +75,10 @@ for partition in disk_partitions:
         "diskUsedSpace": diskUsedSpace,
         "discPercUsed": discPercUsed
     }
+    # put the info from each disk in the final list
     diskinfolist.append(diskinfo)
     
+# json encode the disk info list
 diskinfolist = json.dumps(diskinfolist)
 
 data = {
@@ -52,22 +91,71 @@ response = requests.post(install_url, data=data)
 # if no action = die
 if (response.text == 'no action'):
     print('no action')
-    exit()
+    #exit()
+
 
 # there is an action pending, json decode it
 # action = json.loads(response.text)
-# task = action[0]
-# taskdir = action[1]
-print (response.text)
+backupType = 'files'
+backup_plan_id = '0'
+service_id = '0'
+backup_server_id = '0'
+sshUser = ''
+sshPassword = ''
+sshAdress = ''
+sshPort = ''
+sshBackupDir = '/home/backupuser/23/'
+# print (response.text)
 
-# now = datetime.now()
-# dt_string = now.strftime("%d-%m-%Y.%H-%M-%S")
+# get the date for the backup name
+now = datetime.now()
+backupTimestamp = now.strftime("%d-%m-%Y.%H-%M-%S") # for backup
+date_and_time = now.strftime("%Y-%m-%d-%H-%M-%S") # for database
 
-# dir = '/etc/pterodactyl-backup-service/test'
-# cmd = 'tar -C ' + dir + ' -czf tmp/file-backup_' + dt_string + ".tar.gz ./"
+# the shell tar command to take the backup and temporarily store it in the tmp dir
+dir = '/etc/pterodactyl-backup-service/test'
+cmd = 'tar -v -C ' + dir + ' -czf tmp/file-backup_' + backupTimestamp + '.tar.gz .s/'
 # print (cmd)
-# stream = os.popen(cmd)
-# output = stream.read()
-# print (output)
+result = subprocess.run([cmd], capture_output=True, text=True, shell=True, check=False)
+if (result.stderr):
+    # the tar command failed, print the error msg, and delete the empty tar.gz file
+    print(result.stderr)
+    updateDatabase(backup_plan_id, service_id, backup_server_id, '', backupType, date_and_time, '', 'failed', result.stderr)
+    subprocess.run(['rm tmp/file-backup_' + backupTimestamp + '.tar.gz'], capture_output=True, text=True, shell=True, check=False)
+    exit()
+else:
+    print(result.stdout)
 
 
+# code to upload the backup to the backup server
+cmd = 'sshpass -p "' + sshPassword + '" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P ' + sshPort + ' tmp/file-backup_' + backupTimestamp + ".tar.gz " + sshUser + '@' + sshAdress + ':' + sshBackupDir
+# print (cmd)
+result = subprocess.run([cmd], capture_output=True, text=True, shell=True, check=False)
+
+sshWarning = "Warning: Permanently added '[" + sshAdress + "]:" + sshPort + "' (ECDSA) to the list of known hosts.\n"
+
+if (result.stderr and result.stderr != sshWarning): # check if the error is only the fingerprint warning.
+    # the scp command failed, print the error msg
+    print(result.stderr)
+    files_backup_path = sshBackupDir + 'file-backup_' + backupTimestamp + '.tar.gz'
+    backup_file = os.stat('tmp/file-backup_' + backupTimestamp + '.tar.gz')
+    backup_size = backup_file.st_size
+    backup_status = 'failed'
+    updateDatabase(backup_plan_id, service_id, backup_server_id, files_backup_path, backupType, date_and_time, backup_size, backup_status, result.stderr)
+    subprocess.run(['rm tmp/file-backup_' + backupTimestamp + '.tar.gz'], capture_output=True, text=True, shell=True, check=False)
+    exit()
+else:
+    print(result.stdout)
+
+
+# the tar.gz has succesfully been created and uploaded, so we update the database with the new backup.
+
+files_backup_path = sshBackupDir + 'file-backup_' + backupTimestamp + '.tar.gz'
+backup_file = os.stat('tmp/file-backup_' + backupTimestamp + '.tar.gz')
+backup_size = backup_file.st_size
+backup_status = 'succes'
+
+updateDatabase(backup_plan_id, service_id, backup_server_id, files_backup_path, backupType, date_and_time, backup_size, backup_status, '')
+
+# the backup is uploaded and the db is updated with the backup info, so we delete the local backup file.
+subprocess.run(['rm tmp/file-backup_' + backupTimestamp + '.tar.gz'], capture_output=True, text=True, shell=True, check=False)

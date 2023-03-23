@@ -51,6 +51,7 @@ PHP7/8???
 Python3.8, Requests, Psutil
 Tar
 Cron
+Sshpass
 
 <br>
 * Backup server
