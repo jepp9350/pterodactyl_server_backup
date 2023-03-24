@@ -43,7 +43,7 @@ You will need a backup server, to store and fetch the backups.
 
 * Web server
 
-PHP7/8???
+PHP8
 
 <br>
 * Service/pterodactyl server
@@ -67,7 +67,7 @@ mysql-client
 git clone https://github.com/jepp9350/pterodactyl_server_backup.git
 ```
 
-2. Setup the web UI at `<your domain>/install`
+2. Setup the web UI at `<your domain>/index.php`
 
 (<a href="#readme-top">back to top</a>)
 

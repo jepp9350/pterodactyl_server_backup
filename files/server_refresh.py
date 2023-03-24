@@ -25,7 +25,7 @@ def filesBackup():
     cmd = 'tar -v -C ' + backupDir + ' -czf tmp/file-backup_' + backupTimestamp + '.tar.gz ./'
     result = subprocess.run([cmd], capture_output=True, text=True, shell=True, check=False)
     if (result.stderr):
-        # the tar command failed, print the error msg, and delete the empty tar.gz file
+        # the tar command failed, print the error msg, upload the failed logs, and delete the empty tar.gz file that was created
         print(result.stderr)
         backup_status = 'failed'
         updateDatabase(backup_plan_id, service_id, backup_server_id, '', backupType, date_and_time, '', backup_status, result.stderr)
@@ -39,6 +39,7 @@ def filesBackup():
     cmd = 'sshpass -p "' + sshPassword + '" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P ' + sshPort + ' tmp/file-backup_' + backupTimestamp + ".tar.gz " + sshUser + '@' + sshAdress + ':' + sshBackupDir
     result = subprocess.run([cmd], capture_output=True, text=True, shell=True, check=False)
 
+    # the scp command has added options to add the fingerprint of the backup ssh server, but it still displays a warning, we have to exclude that from a real fail command.
     sshWarning = "Warning: Permanently added '[" + sshAdress + "]:" + sshPort + "' (ECDSA) to the list of known hosts.\n"
 
     if (result.stderr and result.stderr != sshWarning): # check if the error is only the fingerprint warning.
@@ -48,6 +49,7 @@ def filesBackup():
         backup_file = os.stat('tmp/file-backup_' + backupTimestamp + '.tar.gz')
         backup_size = backup_file.st_size
         backup_status = 'failed'
+        # again, we upload the failed backup info to the db, and delete the local tar.gz backup.
         updateDatabase(backup_plan_id, service_id, backup_server_id, files_backup_path, backupType, date_and_time, backup_size, backup_status, result.stderr)
         subprocess.run(['rm tmp/file-backup_' + backupTimestamp + '.tar.gz'], capture_output=True, text=True, shell=True, check=False)
         exit()
@@ -75,7 +77,7 @@ def bytes_to_GB(bytes):
 
 def updateDatabase(backup_plan_id, service_id, backup_server_id, files_backup_path, backupType, date_and_time, backup_size, backup_status, logOutput):
     backupInfo = [backup_plan_id, service_id, backup_server_id, files_backup_path, backupType, date_and_time, backup_size, backup_status, logOutput[:-1]]
-    # print (backupInfo)
+    # POST the info about the task, whether succesful or not to the db.
     backup_info = json.dumps(backupInfo)
     data = {
     'action': 'uploadBackup',
