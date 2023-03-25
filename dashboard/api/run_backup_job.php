@@ -110,8 +110,10 @@ function take_mysql_backup($service_id,$backup_server_id,$backup_plan_id) {
                         $date_and_time = date('Y-m-d-H-i-s');
                         // Determine the backup filename
                         $mysql_backup_filename = "mysql_backup_".$date_and_time.".sql";
+                        // Prepare the backup folder
+                        $prepare_backup_path = "mkdir -p ".$mysql_backup_path.$service_id;
                         // Determine the full backup path
-                        $mysql_backup_path = $mysql_backup_path.$mysql_backup_filename;
+                        $mysql_backup_path = $mysql_backup_path.$service_id."/".$mysql_backup_filename;
                     }
                 } else {
                     // If the backup plan does not exist, return an error
@@ -136,7 +138,7 @@ function take_mysql_backup($service_id,$backup_server_id,$backup_plan_id) {
                 // Create backup command
                 $command = "mysqldump -h ".$mysql_host." -u ".$mysql_username." --all-databases -p'".$mysql_password."' > ".$mysql_backup_path." && echo 'Backup_completed_successfully.' || echo 'Backup_failed.'";
                 // Send the backup command
-                $lines = explode("\n", $ssh->exec($command));
+                $lines = explode("\n", $ssh->exec($prepare_backup_path.';'.$command));
                 // Print the output
                 $saved_lines_to_log = '';
                 foreach ($lines as $line) {
